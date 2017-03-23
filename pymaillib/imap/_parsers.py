@@ -9,8 +9,6 @@
 
 from __future__ import generator_stop
 
-
-from . import constants
 from .utils import byte2int
 from .exceptions import ImapResponseParserError
 
@@ -213,58 +211,14 @@ class ResponseTokenizer(object):
                                                    self.__literals)
 
 
-class AtomTokenizer(object):
-    """Tokenize imap fetch response
-
-    """
-
-    __atom_specials = set([byte2int(b'['), byte2int(b'<')])
-
-    __default_atom_parser = constants.FETCH_ITEMS.get(b'X-')
-
-    __slots__ = ('__tokenizer', 'name', 'value')
-
-    def __init__(self, line=b'', literals=[]):
-        self.__tokenizer = ResponseTokenizer(line, literals)
-        self.name = None
-        self.value = None
-
-    def __iter__(self):
-        self.name = 'SEQ'
-        self.value = self.__tokenizer.__next__()
-        yield self
-
-        rest_items = iter(self.__tokenizer.__next__())
-
-        for item in rest_items:
-            name, atom_data = self.__parse_name(item)
-            parser = constants.FETCH_ITEMS.get(name, self.__default_atom_parser)
-            self.name = name.decode()
-            self.value = parser.parse(atom_data, rest_items.__next__())
-            yield self
-
-    def items(self):
-        yield from [(item.name, item.value) for item in self]
-
-    def __parse_name(self, name):
-        """Get cleaned atom name and the rest of atom for e.g.
-        BODY[]<0..9> will return (b'BODY', {'part': None, 'transferred': 0..9})
-
-        :param name: bytes
-        :return: tuple first element atom name second extra data
-        """
-        for index, char in enumerate(name):
-            if char not in self.__atom_specials:
-                continue
-            truncated, rest = name[:index], name[index:]
-            return truncated, {'part': get_part(rest),
-                               'transferred': get_transferred(rest)}
-        return name, {}
-
-    def __repr__(self):
-        return "name {} value {}".format(self.name, self.value)
+__ATOM_SPECIALS = set([byte2int(b'['), byte2int(b'<')])
 
 
-class ListTokenizer(ResponseTokenizer):
-    __slots__ = ()
-
+def parse_atom_name(name: bytes):
+    for index, char in enumerate(name):
+        if char not in __ATOM_SPECIALS:
+            continue
+        truncated, rest = name[:index], name[index:]
+        return truncated, {'part': get_part(rest),
+                           'transferred': get_transferred(rest)}
+    return name, {}

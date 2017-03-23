@@ -10,7 +10,6 @@
 
 import imaplib
 
-from .parsers import AtomTokenizer
 from . import utf7
 from .exceptions import ImapClientError, ImapClientAbort, \
     ImapClientReadOnlyError

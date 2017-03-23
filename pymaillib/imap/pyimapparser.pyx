@@ -11,7 +11,7 @@ from cython.operator cimport dereference, postincrement, preincrement,\
                              predecrement
 
 
-from . import constants
+from .exceptions import ImapResponseParserError
 
 cdef extern from "ctype.h":
     int isblank ( int c )
@@ -73,7 +73,7 @@ cdef class ResponseTokenizer:
         elif self.is_atom(current):
             return self.parse_value(<bytes>current + self.read_until(WHITESPACE))
 
-        raise KeyError(<bytes>current)
+        raise ImapResponseParserError(<bytes>current)
 
     cdef object get_literal_value(self, const string & size):
         assert self.literals, 'Literal list is empty'
@@ -81,7 +81,7 @@ cdef class ResponseTokenizer:
         if len(value) != atoi(size.c_str()):
             msg = 'Expected {} octets but got {} . ' \
                   'Value: {}'.format(size, len(value), value)
-            raise Exception(msg)
+            raise ImapResponseParserError(msg)
         return value
 
     cdef object parse_value(self, bytes val):
@@ -137,38 +137,6 @@ cdef class ResponseTokenizer:
         return res
 
 
-cdef class AtomTokenizer:
-    """Tokenize imap fetch response
-
-    """
-    __default_atom_parser = constants.FETCH_ITEMS.get(b'X-')
-
-    __slots__ = ('__tokenizer', 'name', 'value')
-
-    def __init__(self, line=b'', literals=[]):
-        self.__tokenizer = ResponseTokenizer(line, literals)
-        self.name = None
-        self.value = None
-
-    def __iter__(self):
-        self.name = 'SEQ'
-        self.value = self.__tokenizer.__next__()
-        yield self
-
-        rest_items = iter(self.__tokenizer.__next__())
-
-        for item in rest_items:
-            name, atom_data = parse_atom_name(item)
-            atom = constants.FETCH_ITEMS.get(name, self.__default_atom_parser)
-            self.name = name.decode()
-            self.value = atom.parse(atom_data, rest_items.__next__())
-            yield self
-
-    def items(self):
-        yield from [(item.name, item.value) for item in self]
-
-cdef class ListTokenizer(ResponseTokenizer):
-    __slots__ = ()
 
 #cdef size_t NOT_FOUND = string.npos
 
@@ -201,17 +169,17 @@ cdef tuple _get_part(const string & line):
 def get_part(line: bytes):
     return _get_part(<string>line)[-1]
 
-cdef tuple parse_atom_name(const string & name):
+cpdef tuple parse_atom_name(const string & name):
 
     part_pos, part = _get_part(name)
     transferred_pos, transferred = _get_transferred(name)
 
-    if part_pos == -1 and transferred_pos == -1:
+    if 0 > part_pos < name.size() and 0 > transferred_pos < name.size():
         return name, {}
 
     tuncate_pos = min(part_pos, transferred_pos)
     if tuncate_pos <= 0:
-        raise Exception('??????')
+        raise ImapResponseParserError('??????')
     return name.substr(0, tuncate_pos), {'part': part,
                                          'transferred': transferred}
 

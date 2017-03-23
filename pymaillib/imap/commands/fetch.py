@@ -13,7 +13,7 @@ from ..utils import build_imap_response_line
 from ..entity.email_message import ImapFetchedItem
 from ..exceptions import ImapRuntimeError
 from ..fetch_query_builder import FetchQueryBuilder
-from ..parsers import AtomTokenizer
+from ..parsers import tokenize_atom_response
 from . import ImapBaseCommand
 
 
@@ -53,4 +53,4 @@ class ImapFetchCommand(ImapBaseCommand):
         typ, data = getattr(imap_obj, func)(*args)
         self.check_response(typ, data)
         for line, literals in build_imap_response_line(data):
-            yield ImapFetchedItem(AtomTokenizer(line, literals).items())
+            yield ImapFetchedItem(tokenize_atom_response(line, literals))

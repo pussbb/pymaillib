@@ -6,11 +6,11 @@ import unittest
 
 import datetime
 
+from imap.entity import SlotBasedImapEntity
 from imap.entity.email_message import ImapFetchedItem
 from pymaillib.imap.entity.body_structure import BodyStructure
 from pymaillib.imap.entity.envelope import Envelope, AddressList
-from pymaillib.imap.parsers import ResponseTokenizer, \
-    AtomTokenizer
+from pymaillib.imap.parsers import ResponseTokenizer, tokenize_atom_response
 from pymaillib.imap.utils import parse_datetime, list_to_dict, \
     build_imap_response_line
 
@@ -309,7 +309,7 @@ class AtomParserTest(unittest.TestCase):
     def parse_items(self, items):
         res = []
         for line, literals in build_imap_response_line(items):
-            res.append(ImapFetchedItem(AtomTokenizer(line, literals).items()))
+            res.append(ImapFetchedItem(tokenize_atom_response(line, literals)))
         return res
 
     def test_empty_body_repsponse(self):

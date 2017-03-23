@@ -45,3 +45,4 @@ procyon-*
 libwbxml
 build
 wbxmldist
+pyimapparser.cpp
