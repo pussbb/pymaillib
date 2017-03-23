@@ -12,7 +12,7 @@ from pymaillib.imap.fetch_query_builder import FetchQueryBuilder
 imaplib.Debug = 0
 
 
-mailbox = UserMailbox('sss@sss.com', 'ssss')
+mailbox = UserMailbox('sxadmin', '1')
 # time.sleep(1)
 
 with mailbox.imap() as client:

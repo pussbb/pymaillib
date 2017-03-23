@@ -229,12 +229,6 @@ class AtomTokenizer(object):
         self.name = None
         self.value = None
 
-    def tokenize(self, line, literals):
-        self.__tokenizer.parse_line(line, literals)
-        self.name = None
-        self.value = None
-        return self
-
     def __iter__(self):
         self.name = 'SEQ'
         self.value = self.__tokenizer.__next__()

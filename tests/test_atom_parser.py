@@ -9,12 +9,10 @@ import datetime
 from imap.entity.email_message import ImapFetchedItem
 from pymaillib.imap.entity.body_structure import BodyStructure
 from pymaillib.imap.entity.envelope import Envelope, AddressList
-from pymaillib.imap.fetch_query_builder import FetchQueryBuilder
-from pymaillib.imap._parsers import parse_value, ResponseTokenizer, \
+from pymaillib.imap.parsers import ResponseTokenizer, \
     AtomTokenizer
 from pymaillib.imap.utils import parse_datetime, list_to_dict, \
     build_imap_response_line
-from pymaillib.imap.commands.fetch import ImapFetchCommand
 
 
 class AtomParserTest(unittest.TestCase):
@@ -27,17 +25,6 @@ class AtomParserTest(unittest.TestCase):
         ]
         for date in dates:
             self.assertIsInstance(parse_datetime(date), datetime.datetime)
-
-    def test_parse_value(self):
-        values = [
-            (b'sad dsfsdf', b'sad dsfsdf'),
-            (b'NIL', None),
-            (b'nil', None),
-            (b'343', 343),
-            (b'', None)
-        ]
-        for value in values:
-            self.assertEqual(parse_value(value[0]), value[1])
 
     def test_envelop_empty_subj(self):
         lines = [
@@ -321,9 +308,8 @@ class AtomParserTest(unittest.TestCase):
 
     def parse_items(self, items):
         res = []
-        tom = AtomTokenizer()
         for line, literals in build_imap_response_line(items):
-            res.append(ImapFetchedItem(tom.tokenize(line, literals).items()))
+            res.append(ImapFetchedItem(AtomTokenizer(line, literals).items()))
         return res
 
     def test_empty_body_repsponse(self):

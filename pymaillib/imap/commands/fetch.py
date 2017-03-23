@@ -9,7 +9,6 @@
 """
 import imaplib
 
-from ..entity.body_structure import BodyStructure
 from ..utils import build_imap_response_line
 from ..entity.email_message import ImapFetchedItem
 from ..exceptions import ImapRuntimeError
