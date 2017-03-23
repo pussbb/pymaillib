@@ -5,6 +5,10 @@
 import imaplib
 import pprint
 
+from pymaillib.imap.dovecot_utils import imap4_utf7_encode
+print(imap4_utf7_encode('ывфывфы'.encode('utf-8')))
+raise SystemExit
+
 from pymaillib.imap.entity.folder import ImapFolder
 from pymaillib import UserMailbox
 from pymaillib.imap.fetch_query_builder import FetchQueryBuilder

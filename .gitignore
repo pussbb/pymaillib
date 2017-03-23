@@ -46,3 +46,5 @@ libwbxml
 build
 wbxmldist
 pyimapparser.cpp
+dovecot_utils/build/
+dovecot_utils.c
