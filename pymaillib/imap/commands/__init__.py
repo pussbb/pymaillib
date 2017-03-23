@@ -10,7 +10,7 @@
 import imaplib
 from traceback import print_exc
 
-from ..parsers import ListTokenizer, get_part
+from ..parsers import ResponseTokenizer, get_part
 from ..utils import list_to_dict
 from ..constants import IMAP4_OK_RESULT
 from ..exceptions import ImapRuntimeError, RFC5530, ImapClientError
@@ -127,7 +127,7 @@ class ImapBaseCommand(object):
         """
         if not data or data == 'NIL':
             return {}
-        return list_to_dict(list(ListTokenizer(data, [])))
+        return list_to_dict(list(ResponseTokenizer(data, [])))
 
     def __repr__(self):
         return '{} {}'.format(self.name, self.__class__)

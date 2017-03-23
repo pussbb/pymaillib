@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 """
+
+    :copyright: (c) 2017 WTFPL.
+    :license: WTFPL, see LICENSE for more details.
 """
 from __future__ import generator_stop
 
@@ -137,7 +140,6 @@ cdef class ResponseTokenizer:
         return res
 
 
-
 #cdef size_t NOT_FOUND = string.npos
 
 cdef bool is_range_valid(const size_t & pos,const size_t & pos2, const size_t & size):
@@ -148,16 +150,20 @@ cdef bool is_range_valid(const size_t & pos,const size_t & pos2, const size_t & 
     return pos2 >=0 and pos2 <= size and pos2 > pos
 
 
-
 cdef tuple _get_transferred(const string & line):
+    """
+
+    """
     cdef size_t pos = line.find_last_of(b'<')
     cdef size_t part_end = line.find_last_of(b'>')
     if is_range_valid(pos, part_end, line.size()):
         return pos, line.substr(pos+1,part_end-pos-1)
     return pos, b''
 
+
 def get_transferred(line: bytes):
     return _get_transferred(<string>line)[-1]
+
 
 cdef tuple _get_part(const string & line):
     cdef size_t pos = line.find_first_of(b'[')
@@ -168,6 +174,7 @@ cdef tuple _get_part(const string & line):
 
 def get_part(line: bytes):
     return _get_part(<string>line)[-1]
+
 
 cpdef tuple parse_atom_name(const string & name):
 

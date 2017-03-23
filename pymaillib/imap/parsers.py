@@ -22,7 +22,7 @@ __DEFAULT_ATOM_PARSER = constants.FETCH_ITEMS.get(b'X-')
 
 
 def tokenize_atom_response(line: bytes, literals: list):
-    """
+    """Converts fetch response to dictionary
 
     :param line: bytes
     :param literals: list
@@ -35,7 +35,3 @@ def tokenize_atom_response(line: bytes, literals: list):
         name, atom_data = parse_atom_name(item)
         atom = constants.FETCH_ITEMS.get(name, __DEFAULT_ATOM_PARSER)
         yield name.decode(), atom.parse(atom_data, rest_items.__next__())
-
-
-class ListTokenizer(ResponseTokenizer):
-    __slots__ = ()

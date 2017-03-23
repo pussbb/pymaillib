@@ -9,7 +9,7 @@
 """
 import uuid
 
-from ..parsers import ListTokenizer
+from ..parsers import ResponseTokenizer
 from ..constants import IMAP4_FOLDER_SPECIAL_CHARS
 from ..utf7 import imap4_utf7_decode, imap4_utf7_encode
 from ..exceptions import ImapRuntimeError
@@ -184,7 +184,7 @@ class ImapFolder(ImapEntity):
         """
 
         try:
-            raw_attributes, path, name = list(ListTokenizer(data, []))
+            raw_attributes, path, name = list(ResponseTokenizer(data, []))
         except Exception as exp:
             raise ImapRuntimeError(b'Could not parse line: ' + data, exp)
 
