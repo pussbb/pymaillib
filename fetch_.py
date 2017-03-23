@@ -5,15 +5,14 @@
 import imaplib
 import pprint
 
-from sxmail.imap.entity.folder import ImapFolder
-from sxmail import UserMailbox
-from sxmail.imap.fetch_query_builder import FetchQueryBuilder
-from sxmail.imap.parsers import ResponseTokenizer, AtomTokenizer
+from pymaillib.imap.entity.folder import ImapFolder
+from pymaillib import UserMailbox
+from pymaillib.imap.fetch_query_builder import FetchQueryBuilder
 
 imaplib.Debug = 0
 
 
-mailbox = UserMailbox('xxx@xxxxx.com', 'xxxxx+')
+mailbox = UserMailbox('sss@sss.com', 'ssss')
 # time.sleep(1)
 
 with mailbox.imap() as client:

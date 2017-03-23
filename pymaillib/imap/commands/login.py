@@ -44,7 +44,7 @@ class ImapLoginCommand(ImapBaseCommand):
         :return:
         """
         try:
-            typ, data = imap_obj.login(
+            _, data = imap_obj.login(
                 self.auth_data.username,
                 str(self.auth_data.password)
             )

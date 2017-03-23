@@ -6,11 +6,14 @@ import unittest
 
 import datetime
 
+from imap.entity.email_message import ImapFetchedItem
 from pymaillib.imap.entity.body_structure import BodyStructure
 from pymaillib.imap.entity.envelope import Envelope, AddressList
 from pymaillib.imap.fetch_query_builder import FetchQueryBuilder
-from pymaillib.imap._parsers import parse_value, ResponseTokenizer
-from pymaillib.imap.utils import parse_datetime, list_to_dict
+from pymaillib.imap._parsers import parse_value, ResponseTokenizer, \
+    AtomTokenizer
+from pymaillib.imap.utils import parse_datetime, list_to_dict, \
+    build_imap_response_line
 from pymaillib.imap.commands.fetch import ImapFetchCommand
 
 
@@ -91,7 +94,7 @@ class AtomParserTest(unittest.TestCase):
             b'1 (RFC822.SIZE 4819 INTERNALDATE "26-Nov-2015 07:25:13 -0500"'
             b' FLAGS (\\Seen) UID 702 ENVELOPE ("Tue, 6 Oct 2015 12:51:12 '
             b'-0400" {70}',   b'erwerewres - works perfect since i think yest'
-                              b'erday on xxx and xxx..'),
+                              b'erday on xxx and xxxxxx..'),
             b' (("xxx xxxx" NIL "xxx" "xxxx.com")) '
             b'(("xxx xxx" NIL "xxx" "xxxx.com")) '
             b'(("xxxxx xxxxx" NIL "xxxx" "xxxxx.com")) '
@@ -151,7 +154,7 @@ class AtomParserTest(unittest.TestCase):
                  b'Return-Path: <MAIL-SYSTEM@test.centos5486.com>\r\n'
                  b'Date: Wed, 11 Nov 2015 08:37:14 -0500\r\n'
                  b'From: MAIL-SYSTEM@test.centos5486.com\r\n'
-                 b'To: scalix-usage-stats@sss.com\r\n'
+                 b'To: scalix-usage-stats@xxxxxx.com\r\n'
                  b'Message-ID: <H0000000000354e1.1447249034.test.'
                  b'centos5486.com@MHS>\r\n'
                  b'Subject: PHONEHOME\r\n'
@@ -269,27 +272,25 @@ class AtomParserTest(unittest.TestCase):
         lines = [
             b'2805 (RFC822.SIZE 11892 FLAGS (\\X-Has-Attach) ENVELOPE '
             b'("Mon, 7 Dec 2015 08:41:29 -0500" '
-            b'"[xxxx - xxx xxxx #60164] xxxx xxx xxxx xxxx BODYSTRUCTURE'
-            b' BODY[0] RFC822 \\"  RFC822.SIZE " '
-            b'(("xxxx" NIL "xxx" "xxxxx.com"))'
-            b' (("xxxx" NIL "xxxx" "xxx.com"))'
-            b' (("xxx" NIL "xxx" "xxxxx.com")) '
-            b'(("xxx xxxx" NIL "xxxx" "xxxx.com")) NIL NIL NIL'
-            b' "<H000009e00de9a79.1449495689.mail.xxxx.com@MHS>") INTERNALDATE'
-            b' "07-Dec-2015 08:38:58 -0500" BODYSTRUCTURE ("MESSAGE" "RFC822" '
-            b'NIL NIL NIL "7BIT" 10725 ("Mon, 7 Dec 2015 08:41:35 -0500" '
-            b'"[xxxx - xxx xxxx #60164] xxxx xxx xxxx xxxx BODYSTRUCTURE"'
-            b' BODY[0] RFC822 \\"  RFC822.SIZE " '
-            b' (("xxxx xxxxx" NIL "xxxx ccccc" "ccccc.com"))'
-            b' (("xxx xxx" NIL "xxx xxxx" "xxxx.com")) '
-            b'(("xxxx xxx" NIL "xxxx xxx" "xxxx.com")) '
-            b'((NIL NIL "undisclosed-recipients:;" "")) NIL NIL NIL'
-            b' "<redmine.journal-804.20151207134134.bbbb@xxxx.com>") '
+            b'"[xxxx - xxx xxxx #60164] xxxx xxx xxxx xxxx BODYSTRUCTURE '
+            b'BODY[0] RFC822 \\"  RFC822.SIZE " '
+            b'(("xxx" NIL "xxx" "xxx.com")) (("xxx" NIL "xxx" "xxx.com")) '
+            b'(("xxx" NIL "xxx" "xxx.com")) (("xx xxx" NIL "xx" "xx.com"))'
+            b' NIL NIL NIL "<H000009e00de9a79.1449495689.mail.scalix.com@MHS>")'
+            b' INTERNALDATE "07-Dec-2015 08:38:58 -0500" BODYSTRUCTURE '
+            b'("MESSAGE" "RFC822" NIL NIL NIL "7BIT" 10725 ("Mon, 7 Dec 2015 '
+            b'08:41:35 -0500" "[xxxx - xxx xxxx #60164] xxxx xxx xxxx xxxx '
+            b'BODYSTRUCTURE BODY[0] RFC822 \\"  RFC822.SIZE " '
+            b'(("xxx xxx" NIL "xxxdddt" "ddd.com")) '
+            b'(("xxxx xx" NIL "xxxx" "xxxxx.com")) '
+            b'(("xxxx xx" NIL "xxxx" "xxxx.com"))'
+            b' ((NIL NIL "undisclosed-recipients:;" "")) NIL NIL NIL'
+            b' "<redmine.journal-804.20151207134134.ec073bb44061c0dd@xx.com>") '
             b'(("text" "plain" ("charset" "US-ASCII") NIL NIL "7bit" 4020 69 '
-            b'NIL NIL NIL)("text" "html" ("charset" "US-ASCII") NIL NIL '
-            b'"7bit" 5102 100 NIL NIL NIL) "alternative" ("charset" "UTF-8" '
-            b'"boundary" "--==_mimepart_56658c8f28ea_610a27c24f883962") NIL '
-            b'NIL) 211 NIL NIL NIL) UID 165359)',
+            b'NIL NIL NIL)("text" "html" ("charset" "US-ASCII") NIL NIL "7bit"'
+            b' 5102 100 NIL NIL NIL) "alternative" ("charset" "UTF-8" '
+            b'"boundary" "--==_mimepart_56658c8f28ea_610a27c24f883962") NIL'
+            b' NIL) 211 NIL NIL NIL) UID 165359)',
 
         ]
         items = self.parse_items(lines)
@@ -319,7 +320,11 @@ class AtomParserTest(unittest.TestCase):
         self.assertIsInstance(items[0]['BODYSTRUCTURE'], BodyStructure)
 
     def parse_items(self, items):
-        return list(ImapFetchCommand(FetchQueryBuilder('1')).parse(items))
+        res = []
+        tom = AtomTokenizer()
+        for line, literals in build_imap_response_line(items):
+            res.append(ImapFetchedItem(tom.tokenize(line, literals).items()))
+        return res
 
     def test_empty_body_repsponse(self):
         lines = [
@@ -342,22 +347,23 @@ class AtomParserTest(unittest.TestCase):
             b'1 (INTERNALDATE "29-Dec-2015 04:08:16 -0500" FLAGS (\\Seen) '
             b'RFC822.SIZE 10322 UID 1 ENVELOPE '
             b'("Mon, 28 Dec 2015 10:40:45 +0000" "xxxx/xxxxx Meeting" (({14}',
-            b'Xxxxx Xxxxxxx'), (b' NIL "xx" "xxx.com")) (({14}', b'Xxxxx Xxxxxxx'),
+            b'Xxxxxx Xxxxxxx'), (b' NIL "xx" "xxx.com")) (({14}',
+                                 b'Xxxxxx Xxxxxxx'),
 
-            (b' NIL "ob" "xxxxx.com")) (({14}', b'Xxxxx Xxxxxxx'),
+            (b' NIL "ob" "xxxxx.com")) (({14}', b'Xxxxxx Xxxxxxx'),
             b' NIL "ob" "xxxxx.com")) ((NIL NIL "xxxxx" "MISSING_DOMAIN"))'
             b' NIL NIL NIL "<DM2PR04MB73356088E83B2FDF569C0B3B9FB0@DM2PR04MB733'
             b'.namprd04.prod.xxxxx.com>"))',
 
             ( b'2 (INTERNALDATE "29-Dec-2015 04:08:16 -0500" FLAGS (\\Seen) '
               b'RFC822.SIZE 10322 UID 1 ENVELOPE ("Mon, 28 Dec 2015 10:40:45 '
-              b'+0000" "xxxxx/xxxx xxxxx" (({14}', b'Xxxxx Xxxxxxx'),
-              (b' NIL "ob" "xxx.com")) (({14}', b'Xxxxx Xxxxxxx'),
+              b'+0000" "xxxxx/xxxx xxxxx" (({14}', b'Xxxxx Xxxxxxxx'),
+              (b' NIL "ob" "xxx.com")) (({14}', b'Xxxxxx Xxxxxxx'),
 
-            (b' NIL "ob" "xxx.com")) (({14}',  b'Xxxxx Xxxxxxx'),
+            (b' NIL "ob" "xxx.com")) (({14}',  b'Xxxxxx Xxxxxxx'),
             (b' NIL "ob" "xxxx.com")) ((NIL NIL "xxxx" "MISSING_DOMAIN")) NIL '
              b'NIL NIL "<DM2PR04MB73356088E83B2FDF569C0B3B9FB0@DM2PR04MB733.'
-             b'namprd04.prod.xxxx.com>") BODY[] {14}', b'Xxxxx Xxxxxxx'),
+             b'namprd04.prod.xxxx.com>") BODY[] {14}', b'Xxxxxx Xxxxxxx'),
             b')',
         ]
         items = self.parse_items(lines)
@@ -383,15 +389,17 @@ class AtomParserTest(unittest.TestCase):
 
     def test_atom_parser_literal_complex(self):
         lines = [
-            (
-            b'1 (FLAGS (\\Seen) RFC822.SIZE 10322 UID 1 INTERNALDATE '
-            b'"29-Dec-2015 04:08:16 -0500" ENVELOPE ("Mon, 28 Dec 2015 10:40:45 '
-            b'+0000" "xxx/xxx xxx" (({14}', b'Oliver Biewald'),
-            (b' NIL "ob" "xxxxx.com")) (({14}', b'Xxxxx Xxxxxxx'),
-            ( b' NIL "ob" "xxxx.com")) ((NIL NIL "xxxx" "MISSING_DOMAIN")) NIL '
-              b'NIL NIL "<DM2PR04MB73356088E83B2FDF569C0B3B9FB0@DM2PR04MB73'
-              b'3.namprd04.prod.xxxxx.com>") BODY[HEADER.FIELDS (SUBJECT)] '
-              b'{31}', b'Subject: xxxx/xxxx xxxxxxx\r\n\r\n'), b')']
+            (b'1 (FLAGS (\\Seen) RFC822.SIZE 10322 UID 1 INTERNALDATE'
+             b' "29-Dec-2015 04:08:16 -0500" ENVELOPE '
+             b'("Mon, 28 Dec 2015 10:40:45 +0000" "xxx/xxx xxxx" (({14}',
+             b'Xxxxxx Xxxxxxx'),
+            (b' NIL "ob" "xxxxx.com")) (({14}', b'Xxxxxx Xxxxxxx'),
+            (b' NIL "ob" "xxx.com")) (({14}',  b'Xxxxxx Xxxxxxx'),
+            (b' NIL "ob" "xxx.com")) ((NIL NIL "xxxx" "MISSING_DOMAIN")) NIL'
+             b' NIL NIL "<DM2PR04MB73356088E83B2FDF569C0B3B9FB0@DM2PR04MB733.'
+             b'namprd04.prod.xxx.com>") BODY[HEADER.FIELDS (SUBJECT)] {31}',
+            b'Subject: XXX/XXXXXX Meeting\r\n\r\n'), b')'
+        ]
 
         items = self.parse_items(lines)
         self.assertEqual(len(items), 1)

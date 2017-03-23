@@ -80,15 +80,15 @@ class FetchItem(object):
         return ''.join(res)
 
     @staticmethod
-    def parse(atom_atom_data, value):
+    def parse(atom_data, value):
         """Abstract method all sub classes must implement them
             see https://tools.ietf.org/html/rfc3501#page-73
 
-        :param atom_atom_data: dict
+        :param atom_data: dict
         :param value: bytes
         :return:
         """
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class UIDFetchItem(FetchItem):
@@ -207,7 +207,7 @@ class BodyFetchItem(FetchItem):
     HEADER.FIELDS.NOT part specifier is calculated after
     subsetting the header.
 
-    The \Seen flag is implicitly set; if this causes the flags to
+    The \\Seen flag is implicitly set; if this causes the flags to
     change, they SHOULD be included as part of the FETCH responses.
 
     """

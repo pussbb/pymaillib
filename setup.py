@@ -13,7 +13,7 @@ if sys.version_info < (3, 5):
 
 
 setup(
-    name='sximap4',
+    name='pymaillib',
     version='0.1',
     packages=['pymaillib', ],
     url='',

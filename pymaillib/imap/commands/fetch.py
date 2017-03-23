@@ -53,15 +53,5 @@ class ImapFetchCommand(ImapBaseCommand):
 
         typ, data = getattr(imap_obj, func)(*args)
         self.check_response(typ, data)
-        yield from self.parse(data)
-
-    def parse(self, lines):
-        """Parse response and construct message obj
-
-        :param lines: list
-        :return:
-        """
-        tokenizer = AtomTokenizer()
-        for line, literals in build_imap_response_line(lines):
-            yield ImapFetchedItem(tokenizer.tokenize(line, literals).items())
-
+        for line, literals in build_imap_response_line(data):
+            yield ImapFetchedItem(AtomTokenizer(line, literals).items())
