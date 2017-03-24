@@ -155,7 +155,7 @@ class ResponseTokenizer(object):
                 break
         else:
             raise ImapResponseParserError(
-                    'Could find closing ) in line '.format(self.__line)
+                'Could find closing ) in line '.format(self.__line)
             )
 
     def __read_util_space(self) -> bytes:
@@ -195,8 +195,8 @@ class ResponseTokenizer(object):
 
             raise ImapResponseParserError(
                     'Could not find {} in line {}'.format(
-                            list(map(chr, looking_for)),
-                            self.__line
+                        list(map(chr, looking_for)),
+                        self.__line
                     )
             )
 
