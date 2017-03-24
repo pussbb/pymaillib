@@ -415,7 +415,7 @@ class BodyStructureFetchItem(FetchItem):
 class BodyPeekFetchItem(BodyFetchItem):
     """BODY.PEEK[<section>]<<partial>>
          An alternate form of BODY[<section>] that does not implicitly
-         set the \Seen flag.
+         set the \\Seen flag.
 
     """
 

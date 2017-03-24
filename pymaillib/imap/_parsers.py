@@ -194,10 +194,10 @@ class ResponseTokenizer(object):
                 return self.__get_value(self.__pos, self.__len)
 
             raise ImapResponseParserError(
-                    'Could not find {} in line {}'.format(
-                        list(map(chr, looking_for)),
-                        self.__line
-                    )
+                'Could not find {} in line {}'.format(
+                    list(map(chr, looking_for)),
+                    self.__line
+                )
             )
 
     def __get_value(self, start, end):

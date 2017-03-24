@@ -72,7 +72,7 @@ class SimpleBodyPart(SlotBasedImapEntity):
             value = list_to_dict(md5_or_list)
             if value.get(b'attachment'):
                 self.filename = decode_parameter_value(
-                        value[b'attachment'].pop(b'filename', None)
+                    value[b'attachment'].pop(b'filename', None)
                 )
             self.attributes = {**self.attributes, **value}
         self.disposition = list_to_dict(disposition)
