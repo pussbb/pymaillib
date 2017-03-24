@@ -6,7 +6,12 @@
     :license: WTFPL, see LICENSE for more details.
 """
 
-from cpython cimport bool
+from libcpp cimport bool
+from cpython.datetime cimport datetime_new
+from libc.time cimport time_t, tm, mktime
+from libc.stddef cimport size_t
+from libc.string cimport strlen
+
 
 cdef extern from "lib.h":
     pass
@@ -26,13 +31,30 @@ cdef extern from "imap-utf7.h":
     # Convert IMAP-UTF-7 string to UTF-8. Returns 0 if ok, -1 if src isn't
     # valid IMAP-UTF-7.
     int imap_utf7_to_utf8(const char *src, string_t *dest)
-    #Returns TRUE if the string is valid IMAP-UTF-7 string. */
+    # Returns TRUE if the string is valid IMAP-UTF-7 string. */
     bool imap_utf7_is_valid(const char *src)
 
 cdef extern from "str.h":
     const char * str_c(string_t *)
     string_t *t_str_new(size_t)
     void str_free(string_t **)
+
+cdef extern from "iso8601-date.h":
+    # Parses ISO8601 (RFC3339) date-time string. timezone_offset is filled with the
+    # timezone's difference to UTC in minutes. Returned time_t timestamp is
+    # compensated for time zone.
+    bool iso8601_date_parse(const unsigned char *, size_t, time_t *, int *)
+    # Equal to iso8601_date_parse, but writes uncompensated timestamp to tm_r. */
+    bool iso8601_date_parse_tm(const unsigned char *, size_t, tm *, int *)
+
+    # Create ISO8601 date-time string from given time struct in specified
+    # timezone. A zone offset of zero will not to 'Z', but '+00:00'. If
+    # zone_offset == INT_MAX, the time zone will be 'Z'. */
+    const char *iso8601_date_create_tm(tm *, int )
+
+    # Create ISO8601 date-time string from given time in local timezone. */
+    const char *iso8601_date_create(time_t)
+
 
 
 def imap4_utf7_encode(data):
@@ -51,7 +73,7 @@ def imap4_utf7_encode(data):
     finally:
         str_free(&dest)
 
-def imap4_utf7_decode(data):
+def imap4_utf7_decode(bytes data):
     """Decode a folder name from IMAP modified UTF-7 encoding to unicode.
 
     Input is bytes (Python 3) or str (Python 2); output is always
@@ -70,3 +92,15 @@ def imap4_utf7_decode(data):
     finally:
         str_free(&dest)
 
+from datetime import datetime, timezone, timedelta
+
+def parse_date(value):
+    if isinstance(value, str):
+        value =  value.encode()
+    cdef tm tm4
+    cdef int tz
+    cdef bool result  = iso8601_date_parse_tm(<const unsigned char * >value, strlen(value), &tm4, &tz)
+    if not result:
+        raise Exception('Failed to parse {}'.format(value))
+
+    return datetime.fromtimestamp(mktime(&tm4), timezone(timedelta(minutes=tz)))

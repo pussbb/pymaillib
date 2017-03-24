@@ -41,8 +41,7 @@ ext = [
         ['dovecot_utils.pyx'] ,#+ scandir('./dovecot_utils/'),
         include_dirs=['.', './dovecot_utils/'],
         define_macros=[('HAVE_UINTMAX_T', True), ('HAVE_UINT_FAST32_T', True)],
-        extra_objects=['./dovecot_utils/build/libdovecot_utils.a']
-        #language="c++",
+        extra_objects=['./dovecot_utils/build/libdovecot_utils.a'],
     )
 ]
 
