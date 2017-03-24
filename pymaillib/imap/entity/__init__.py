@@ -52,7 +52,7 @@ class SlotBasedImapEntity(ImapEntity):
 
         if args or kwargs:
             raise TypeError('Too many values provided {} {}'.format(args,
-                                                                       kwargs))
+                                                                    kwargs))
 
     def _bulk_append(self, keys, args, kwargs):
         if args:
@@ -61,13 +61,13 @@ class SlotBasedImapEntity(ImapEntity):
                     break
                 try:
                     setattr(self, item, args.pop(0))
-                    #super().__setattr__(item, args.pop(0))
+                    # super().__setattr__(item, args.pop(0))
                 except IndexError as exp:
                     raise TypeError('Missing positional argument for'
                                     ' {}'.format(item), exp)
         for name in list(kwargs):
             setattr(self, name, kwargs.pop(name))
-            #super().__setattr__(name, kwargs.pop(name))
+            # super().__setattr__(name, kwargs.pop(name))
 
         # left items
         return args, kwargs
@@ -83,4 +83,3 @@ class SlotBasedImapEntity(ImapEntity):
                 continue
             res[item] = getattr(self, item)
         return res
-

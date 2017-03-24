@@ -25,7 +25,8 @@ class ImapCreateFolderCommand(ImapBaseCommand):
         """Creates new instance of the class specifying for what folder command
         will be executed.
 
-        :param folder: folder object
+        :param folder_name: AnyStr
+        :param parent: ImapFolder
         :return:
         """
         self.__folder_name = ImapFolder.build_folder_name(folder_name, parent)

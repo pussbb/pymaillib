@@ -9,6 +9,8 @@
 
 from __future__ import generator_stop
 
+from typing import AnyStr
+
 from .utils import byte2int
 from .exceptions import ImapResponseParserError
 
@@ -50,7 +52,7 @@ def get_part(line: bytes, default=None) -> bytes:
     return line[line.find(b'[')+1:line.find(b']')]
 
 
-def get_transferred(line: bytes) -> bytes:
+def get_transferred(line: bytes) -> AnyStr:
     """Get number of transferred data inside <>
 
     :param line:
@@ -71,7 +73,6 @@ def check_literal(value: bytes, size: int):
 
     :param value: bytes
     :param size: int
-    :param name: atom name
     :return value if length is correct
     """
     if size != len(value):
@@ -87,7 +88,7 @@ class ResponseTokenizer(object):
     """
 
     __escaping_char = byte2int(b'\\')
-    __quotes = set([byte2int(b'\''), byte2int(b'"')])
+    __quotes = {byte2int(b'\''), byte2int(b'"')}
     __list_start = byte2int(b'(')
     __list_end = byte2int(b')')
     __space = byte2int(b' ')
@@ -163,9 +164,9 @@ class ResponseTokenizer(object):
         :return: bytes
         """
         return self._read_until(
-                (self.__list_end, self.__space),
-                self.__square_bracket_start,
-                self.__square_bracket_end
+            (self.__list_end, self.__space),
+            self.__square_bracket_start,
+            self.__square_bracket_end
         )
 
     def _read_until(self, looking_for, special_start=False,
@@ -211,7 +212,7 @@ class ResponseTokenizer(object):
                                                    self.__literals)
 
 
-__ATOM_SPECIALS = set([byte2int(b'['), byte2int(b'<')])
+__ATOM_SPECIALS = {byte2int(b'['), byte2int(b'<')}
 
 
 def parse_atom_name(name: bytes):

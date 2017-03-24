@@ -212,6 +212,7 @@ class ImapClient(LockedImapObject):
                       parent_folder: ImapFolder):
         """Change namr of the existing folder name
 
+        :param parent_folder: ImapFolder
         :param folder: ImapFolder instance
         :param new_folder_name: AnyStr
         :return:

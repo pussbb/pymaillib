@@ -131,9 +131,6 @@ class ImapFolder(ImapEntity):
             int(self.__attributes.get(b'X-Total-Msgs', 0))
         )
 
-    def __unicode__(self):
-        return repr(self).decode('utf-8')
-
     def __repr__(self):
         return 'Name:{0} Path: {1} Attributes:{2} Stats {3}'.format(
             self.name,

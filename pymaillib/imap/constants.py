@@ -9,8 +9,6 @@
 """
 import re
 
-from .entity.fetch_item import FETCH_ITEMS
-
 IMAP_DEFAULTS = {
     'host': '',
     'port': 0,  # imaplib.IMAP4_PORT,
@@ -19,14 +17,12 @@ IMAP_DEFAULTS = {
     'certfile': None
 }
 
-IMAP4_COMMANDS = set([
-    'CAPABILITY', 'LOGOUT', 'LOGIN', 'DELETE', 'RENAME', 'CREATE',
-    'EXAMINE', 'SELECT', 'NOOP', 'SUBSCRIBE', 'UNSUBSCRIBE', 'LIST',
-    'LSUB', 'APPEND', 'CHECK', 'CLOSE', 'EXPUNGE', 'SEARCH', 'FETCH',
-    'PARTIAL', 'STORE', 'COPY', 'UID',
-])
+IMAP4_COMMANDS = {'CAPABILITY', 'LOGOUT', 'LOGIN', 'DELETE', 'RENAME', 'CREATE',
+                  'EXAMINE', 'SELECT', 'NOOP', 'SUBSCRIBE', 'UNSUBSCRIBE',
+                  'LIST', 'LSUB', 'APPEND', 'CHECK', 'CLOSE', 'EXPUNGE',
+                  'SEARCH', 'FETCH', 'PARTIAL', 'STORE', 'COPY', 'UID'}
 
-IMAP4REV1_CAPABILITY_KEYS = set(['IMAP4rev1', 'IMAP4REV1'])
+IMAP4REV1_CAPABILITY_KEYS = {'IMAP4rev1', 'IMAP4REV1'}
 
 FOLDER_UNTAGGED_KEYS = ('FLAGS', 'RECENT', 'UNSEEN', 'UIDVALIDITY', 'UIDNEXT',
                         'PERMANENTFLAGS')

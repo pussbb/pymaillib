@@ -18,4 +18,4 @@ build:
 	python3 setup.py build_ext -i -f -j 4
 
 dist: clean build_dovecot_utils
-	python3 setup.py bdist_wheel
+	python3 setup.py sdist bdist_wheel

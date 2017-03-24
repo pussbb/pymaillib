@@ -25,15 +25,15 @@ class Envelope(SlotBasedImapEntity):
         :param items: list
         :return:
         """
-        #if not items:
-        #    return Envelope(*[b'']*10)
+
         date, subj, *addrs, in_reply, msg_id = items
         return Envelope(
-                parse_datetime(date),
-                decode_parameter_value(subj),
-                *[AddressList.from_list(addr) for addr in addrs],
-                in_reply_to=in_reply,
-                message_id=msg_id)
+            parse_datetime(date),
+            decode_parameter_value(subj),
+            *[AddressList.from_list(addr) for addr in addrs],
+            in_reply_to=in_reply,
+            message_id=msg_id
+        )
 
 
 class Address(SlotBasedImapEntity):
@@ -53,7 +53,7 @@ class AddressList(ImapEntity):
 
     """
 
-    __slots__ = ('_addresses')
+    __slots__ = '_addresses',
 
     def __init__(self, addresses):
         self._addresses = addresses

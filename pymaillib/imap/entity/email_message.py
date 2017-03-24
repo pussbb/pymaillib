@@ -52,7 +52,7 @@ class ImapEmailMessage(ImapEntity):
 
         self.__email = self.__parse_email(self.__data['BODY'].pop(0, b''))
         body_structure = self.__data['BODY'].pop('BODYSTRUCTURE', b'')
-        if body_structure and not 'BODYSTRUCTURE' in self.__data:
+        if body_structure and 'BODYSTRUCTURE' not in self.__data:
             self.__data['BODYSTRUCTURE'] = body_structure
 
         header = self.__parse_email(self.__data['BODY'].pop('HEADER', b''))

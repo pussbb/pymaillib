@@ -144,7 +144,7 @@ class BodyStructure(ImapEntity):
 
     """
 
-    __slots__ = ('__part')
+    __slots__ = '__part',
 
     def __init__(self, part):
         self.__part = part

@@ -8,6 +8,7 @@
     :license: WTFPL, see LICENSE for more details.
 """
 import imaplib
+from typing import AnyStr
 
 from ..exceptions import ImapRuntimeError
 from ..entity.folder import ImapFolder
@@ -21,12 +22,14 @@ class ImapRenameFolderCommand(ImapBaseCommand):
 
     _COMMAND = 'RENAME'
 
-    def __init__(self, old_folder: ImapFolder, folder_name: str,
+    def __init__(self, old_folder: ImapFolder, folder_name: AnyStr,
                  parent: ImapFolder):
         """Creates new instance of the class specifying for what folder command
         will be executed.
 
-        :param folder: string folder name
+        :param old_folder: ImapFolder
+        :param folder_name: AnyStr new folder name
+        :param parent: ImapFolder
         :return:
         """
         if not old_folder.editable:

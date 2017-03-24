@@ -78,7 +78,7 @@ class LockedImapObject(LockableObject):
 
         if not capabilities:
             return
-        self.capabilities = self.capabilities | set(capabilities)
+        self.capabilities |= set(capabilities)
         if IMAP4REV1_CAPABILITY_KEYS & self.capabilities:
             self.capabilities = self.capabilities | IMAP4_COMMANDS
 
@@ -112,10 +112,11 @@ class LockedImapObject(LockableObject):
                                             ' Please recreate.')
         result = command.run(self.__imap_obj)
         command.untagged_responses = deepcopy(self.__imap_obj.untagged_responses)
-        self.last_untagged_responses = deepcopy(self.__imap_obj.untagged_responses)
+        self.last_untagged_responses = self.__imap_obj.untagged_responses
 
         if self.last_untagged_responses:
-            warnings.warn('Data left {}'.format(self.last_untagged_responses), RuntimeWarning)
+            warnings.warn('Data left {}'.format(self.last_untagged_responses),
+                          RuntimeWarning)
         return result
 
     def supports(self, command_name: str):

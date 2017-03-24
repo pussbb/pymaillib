@@ -8,4 +8,3 @@
     :license: WTFPL, see LICENSE for more details.
 """
 
-from .mailbox import UserMailbox
