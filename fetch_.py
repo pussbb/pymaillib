@@ -5,9 +5,6 @@
 import imaplib
 import pprint
 
-from pymaillib.imap.dovecot_utils import imap4_utf7_encode
-print(imap4_utf7_encode('ывфывфы'.encode('utf-8')))
-raise SystemExit
 
 from pymaillib.imap.entity.folder import ImapFolder
 from pymaillib import UserMailbox
@@ -29,6 +26,9 @@ with mailbox.imap() as client:
     query.fetch_body_structure()
     #query.add('BODY.PEEK[]')
     print(query)
+
+    for folder in client.folders():
+        print(folder)
 
     folder = ImapFolder(b'Inbox', b'/', {})
     pprint.pprint(len(list(client.messages(folder, query))))

@@ -10,7 +10,7 @@
 
 import imaplib
 
-from . import utf7
+
 from .exceptions import ImapClientError, ImapClientAbort, \
     ImapClientReadOnlyError
 

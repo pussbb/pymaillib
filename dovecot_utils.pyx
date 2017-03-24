@@ -30,12 +30,43 @@ cdef extern from "imap-utf7.h":
     bool imap_utf7_is_valid(const char *src)
 
 cdef extern from "str.h":
-    const char * str_c(string_t * str)
+    const char * str_c(string_t *)
     string_t *t_str_new(size_t)
+    void str_free(string_t **)
 
 
-def imap4_utf7_encode(s):
+def imap4_utf7_encode(data):
+    """Encode a folder name using IMAP modified UTF-7 encoding.
+
+    Input is unicode; output is bytes (Python 3) or str (Python 2). If
+    non-unicode input is provided, the input is returned unchanged.
+    """
+    if not isinstance(data, str):
+        return data
     cdef string_t *dest = t_str_new(255)
-    if imap_utf8_to_utf7(s, dest) != 0:
-        raise Exception("Error")
-    return str_c(dest)
+    try:
+        if imap_utf8_to_utf7(data.encode(), dest) != 0:
+            return data
+        return str_c(dest)
+    finally:
+        str_free(&dest)
+
+def imap4_utf7_decode(data):
+    """Decode a folder name from IMAP modified UTF-7 encoding to unicode.
+
+    Input is bytes (Python 3) or str (Python 2); output is always
+    unicode. If non-bytes/str input is provided, the input is returned
+    unchanged.
+    """
+
+    if not isinstance(data, bytes):
+        return bytearray(data, 'utf-8')
+
+    cdef string_t *dest = t_str_new(255)
+    try:
+        if imap_utf7_to_utf8(data, dest) != 0:
+            return data
+        return str_c(dest).decode('utf-8')
+    finally:
+        str_free(&dest)
+
