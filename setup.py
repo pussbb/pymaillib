@@ -14,20 +14,6 @@ if sys.version_info < (3, 5):
     print("I'm only for 3, please upgrade")
     sys.exit(1)
 
-# scan the 'dvedit' directory for extension files, converting
-# them to extension names in dotted notation
-def scandir(dir, files=[]):
-    for file in os.listdir(dir):
-        path = os.path.join(dir, file)
-        if os.path.isfile(path) and path.endswith('.c'):
-            if 'unicodemap' in path:
-                continue
-            files.append(path)
-        elif os.path.isdir(path):
-            scandir(path, files)
-    return files
-
-
 ext = [
     Extension(
         'pymaillib.imap.pyimapparser',
@@ -38,26 +24,13 @@ ext = [
     ),
     Extension(
         'pymaillib.imap.dovecot_utils',
-        ['dovecot_utils.pyx'] ,#+ scandir('./dovecot_utils/'),
+        ['dovecot_utils.pyx'],
         include_dirs=['.', './dovecot_utils/'],
         define_macros=[('HAVE_UINTMAX_T', True), ('HAVE_UINT_FAST32_T', True)],
         extra_objects=['./dovecot_utils/build/libdovecot_utils.a'],
     )
 ]
 
-
-class InlineBuildExtCommand(build_ext):
-    """Runs build_ext command with --inline command argument
-
-    """
-
-    def run(self):
-        """Run build_ext command
-
-        :return:
-        """
-        self.inplace = 1
-        build_ext.run(self)
 
 setup(
     name='pymaillib',
