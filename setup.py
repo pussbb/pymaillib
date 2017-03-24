@@ -5,7 +5,7 @@
 from distutils.command.build_ext import build_ext
 
 from Cython.Build import cythonize
-from setuptools import setup
+from setuptools import setup, find_packages
 from setuptools.extension import Extension
 import sys
 import os
@@ -63,13 +63,13 @@ class InlineBuildExtCommand(build_ext):
 setup(
     name='pymaillib',
     version='0.1',
-    packages=['pymaillib', ],
+    packages=find_packages(exclude=["tests"]),
     url='',
     license='WTFPL ',
     author='pussbb',
     author_email='pussbb@gmail.com',
     description='helper wrapper for imaplib',
-    platforms='any',
+    platforms=['linux-x86_64'],
     classifiers=[
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3.5',
@@ -78,7 +78,4 @@ setup(
     test_suite="tests",
     install_requires=['python-dateutil'],
     ext_modules=cythonize(ext, force=True, language_level=3),
-    cmdclass={
-        'build_ext': InlineBuildExtCommand,
-    },
 )

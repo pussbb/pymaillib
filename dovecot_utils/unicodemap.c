@@ -2,7 +2,11 @@
 
    NOTE: decompositions for characters having titlecase characters
    are not included, because we first translate everything to titlecase */
-#include <stdint.h>
+//
+#if !defined (uint16_t) || !defined (uint32_t)
+    #include <stdint.h>
+#endif
+
 static const uint16_t titlecase8_map[256] = {
 	0x00000, 0x00001, 0x00002, 0x00003, 0x00004, 0x00005, 0x00006, 0x00007,
 	0x00008, 0x00009, 0x0000a, 0x0000b, 0x0000c, 0x0000d, 0x0000e, 0x0000f,
