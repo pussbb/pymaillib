@@ -16,9 +16,9 @@ except ImportError as _:
                   ' of parser', RuntimeWarning)
     from ._parsers import ResponseTokenizer, parse_atom_name, get_part
 
-from . import constants
+from .entity.fetch_item import FETCH_ITEMS
 
-__DEFAULT_ATOM_PARSER = constants.FETCH_ITEMS.get(b'X-')
+__DEFAULT_ATOM_PARSER = FETCH_ITEMS.get(b'X-')
 
 
 def tokenize_atom_response(line: bytes, literals: list):
@@ -33,5 +33,5 @@ def tokenize_atom_response(line: bytes, literals: list):
     rest_items = iter(parser.__next__())
     for item in rest_items:
         name, atom_data = parse_atom_name(item)
-        atom = constants.FETCH_ITEMS.get(name, __DEFAULT_ATOM_PARSER)
+        atom = FETCH_ITEMS.get(name, __DEFAULT_ATOM_PARSER)
         yield name.decode(), atom.parse(atom_data, rest_items.__next__())

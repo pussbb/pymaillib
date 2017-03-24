@@ -10,8 +10,7 @@
 """
 from .utils import is_iterable
 from .exceptions import ImapRuntimeError
-from .entity.fetch_item import FetchItem
-from .constants import FETCH_ITEMS
+from .entity.fetch_item import FetchItem, FETCH_ITEMS
 
 
 class FetchQueryBuilder(object):
