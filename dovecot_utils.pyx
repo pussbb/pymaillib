@@ -95,6 +95,11 @@ def imap4_utf7_decode(bytes data):
 from datetime import datetime, timezone, timedelta
 
 def parse_date(value):
+    """ in dovecot there are also message_date, imap_date files
+
+    :param value:
+    :return:
+    """
     if isinstance(value, str):
         value =  value.encode()
     cdef tm tm4
