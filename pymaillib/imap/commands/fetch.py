@@ -11,7 +11,7 @@ import imaplib
 
 from ..utils import build_imap_response_line
 from ..entity.email_message import ImapFetchedItem
-from ..exceptions import ImapRuntimeError, ImapInvalidArgument
+from ..exceptions import ImapInvalidArgument
 from ..fetch_query_builder import FetchQueryBuilder
 from ..parsers import tokenize_atom_response
 from . import ImapBaseCommand
