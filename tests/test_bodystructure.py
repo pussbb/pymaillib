@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-
+    :copyright: (c) 2017 WTFPL.
+    :license: WTFPL, see LICENSE for more details.
 """
 import unittest
 
-from pymaillib.imap.entity.body_structure import BodyStructure, SimpleBodyPart, \
+from pymaillib.imap.entity.body_structure import BodyStructure, SimpleBodyPart,\
     MultiPartBodyPart, MessageRFC822BodPart
 from pymaillib.imap.entity.envelope import Envelope
 

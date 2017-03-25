@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-
+    :copyright: (c) 2017 WTFPL.
+    :license: WTFPL, see LICENSE for more details.
 """
 
 from pymaillib.imap.client import ImapClient
 from pymaillib.imap.commands import ImapBaseCommand
 from pymaillib.imap.entity.folder import ImapFolder
-from pymaillib.imap.exceptions import ImapIllegalStateException, ImapObjectNotFound, \
-    ImapAlreadyExists, ImapClientError, ImapRuntimeError
+from pymaillib.imap.exceptions import ImapIllegalStateException, \
+    ImapObjectNotFound, ImapAlreadyExists, ImapClientError, ImapRuntimeError
 from pymaillib.imap.fetch_query_builder import FetchQueryBuilder
 from pymaillib.user import UserCredentials
 from pymaillib.imap import imaplib

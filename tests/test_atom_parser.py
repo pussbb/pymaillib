@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-
+    :copyright: (c) 2017 WTFPL.
+    :license: WTFPL, see LICENSE for more details.
 """
 import unittest
 
 import datetime
 
-from imap.entity import SlotBasedImapEntity
 from imap.entity.email_message import ImapFetchedItem
 from pymaillib.imap.entity.body_structure import BodyStructure
 from pymaillib.imap.entity.envelope import Envelope, AddressList

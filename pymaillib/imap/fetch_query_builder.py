@@ -8,9 +8,78 @@
     :copyright: (c) 2017 WTFPL.
     :license: WTFPL, see LICENSE for more details.
 """
+from typing import Any, List, Tuple
+
 from .utils import is_iterable
 from .exceptions import ImapRuntimeError
 from .entity.fetch_item import FetchItem, FETCH_ITEMS
+
+
+def build_numeric_sequence(data: List[int]) -> List[str]:
+    """Builds range from list of integers if it possible.
+    for e.g. ::
+        >>> res = build_numeric_sequence([0, 1, 2, 3, 4, 5, 6, 56, 44, 45, 46])
+        >>> print(res)
+        ['1:6', '44:46', '56']
+        >>>
+        
+    :param data: list of integers
+    :return: list of parsed list
+    """
+    prev = -1
+    start = None
+    res = []
+    for item in filter(None, sorted(set(data))):
+        if prev+1 == item:
+            if not start:
+                start = prev
+                if res and res[-1] == prev:
+                    res.pop()
+        else:
+            if start:
+                res.append('{}:{}'.format(start, prev))
+                start = None
+            res.append(item)
+        prev = item
+    if start:
+        res.append('{}:{}'.format(start, prev))
+    return [str(item) for item in res]
+
+
+def build_sequence(data: Any):
+    """Builds sequence for fetch command.
+    for e.g.::
+        >>>res = build_sequence('1:*')
+        >>>print(res)
+        1:*
+        >>>
+        >>>res = build_sequence('1,2,3,4,5,6,7,47,8,87,5:88')
+        >>>print(res)
+        5:88,1:8,47,87
+        >>>
+        >>>res = build_sequence([0, 1, 2, 3, 4, 5, 6, 56, 44, 45, 46])
+        >>>print(res)
+        1:6,44:46,56
+        >>>
+    
+    :param data: Any
+    :return: string
+    """
+    if isinstance(data, (bytearray, bytes)):
+        data = data.decode()
+    if isinstance(data, str):
+        data = data.split(',')
+    literals = []
+    numeric = []
+    for item in data:
+        if str(item).isdigit():
+            numeric.append(int(item))
+            continue
+        if ':' in item:
+            literals.append(item)
+        else:
+            raise Exception(item)
+    return ','.join(literals + build_numeric_sequence(numeric))
 
 
 class FetchQueryBuilder(object):
@@ -29,8 +98,9 @@ class FetchQueryBuilder(object):
 
         self.__uids = uids
         self.__seq = seq_ids
+        self.__peek = False
 
-    def add(self, *args):
+    def add(self, *args) -> 'FetchQueryBuilder':
         """Add some data items for IMAP FETCH command
 
         :param args:
@@ -38,9 +108,10 @@ class FetchQueryBuilder(object):
         """
         for arg in args:
             self.__items.add(str(arg))
+        return self
 
     @property
-    def uids(self):
+    def uids(self) -> Any:
         """List of UID's to fetch from server
 
         :return:
@@ -48,29 +119,37 @@ class FetchQueryBuilder(object):
         return self.__uids
 
     @property
-    def sequence(self):
+    def sequence(self) -> Any:
         """List of sequence numbers to fetch from the server
 
         :return:
         """
         return self.__seq
 
-    def build(self):
+    def set_peek(self, value: bool) -> 'FetchQueryBuilder':
+        """Set using PEEK for fetching some data.
+        
+        :param value: 
+        :return: 
+        """
+        self.__peek = value
+        return self
+
+    def build(self) -> Tuple[str, str]:
         """Builds valid query string for IMAP FETCH command
 
         :return: tuple
         """
         return self.__build_range(), '({})'.format(' '.join(self.__items))
 
-    def __build_range(self):
-        keys = self.uids
-        if not keys:
-            keys = self.sequence
-        if not is_iterable(keys):
-            keys = [keys]
-        return ','.join(keys)
+    def __build_range(self) -> str:
+        """Helper function to build range of fetch items.  
+        
+        :return: string
+        """
+        return build_sequence(filter(None, (self.uids, self.sequence)))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return ' '.join(self.build())
 
     def _get_fetch_item(self, name: bytes):
@@ -82,7 +161,7 @@ class FetchQueryBuilder(object):
         """
         return FETCH_ITEMS.get(name, FetchItem)()
 
-    def fetch_body(self, part=None, size=0):
+    def fetch_body(self, part=None, size=0) -> 'FetchQueryBuilder':
         """Add to a fetch command BODY ATOM
 
         :param part: part according RFC
@@ -92,8 +171,9 @@ class FetchQueryBuilder(object):
         body_part.size = size
         body_part.part = part
         self.add(body_part)
+        return self
 
-    def fetch_body_peek(self, part=None, size=0):
+    def fetch_body_peek(self, part=None, size=0) -> 'FetchQueryBuilder':
         """Add to a fetch command BODY.PEEK ATOM
 
         :param part: part according RFC
@@ -103,97 +183,103 @@ class FetchQueryBuilder(object):
         body_part.size = size
         body_part.part = part
         self.add(body_part)
+        return self
 
-    def fetch_envelope(self):
+    def fetch_envelope(self) -> 'FetchQueryBuilder':
         """Add ENVELOPE message item to fetch query command
 
         """
         self.add(self._get_fetch_item(b'ENVELOPE'))
+        return self
 
-    def fetch_body_structure(self):
+    def fetch_body_structure(self) -> 'FetchQueryBuilder':
         """Add BODYSTRUCTURE message item to fetch query command
 
         """
         self.add(self._get_fetch_item(b'BODYSTRUCTURE'))
+        return self
 
-    def fetch_uid(self):
+    def fetch_uid(self) -> 'FetchQueryBuilder':
         """Add UID message item to fetch query command
 
         """
         self.add(self._get_fetch_item(b'UID'))
+        return self
 
-    def fetch_flags(self):
+    def fetch_flags(self) -> 'FetchQueryBuilder':
         """Add FLAGS message item to fetch query command
 
         """
         self.add(self._get_fetch_item(b'FLAGS'))
+        return self
 
-    def fetch_internal_date(self):
+    def fetch_internal_date(self) -> 'FetchQueryBuilder':
         """Add INTERNALDATE message item to fetch query command
 
         """
         self.add(self._get_fetch_item(b'INTERNALDATE'))
+        return self
 
-    def fetch_rfc822(self):
+    def fetch_rfc822(self) -> 'FetchQueryBuilder':
         """Add RFC822 item to fetch query command
 
         """
         self.add(self._get_fetch_item(b'RFC822'))
+        return self
 
-    def fetch_rfc822_header(self):
+    def fetch_rfc822_header(self) -> 'FetchQueryBuilder':
         """Add RFC822.HEADER item to fetch query command
 
         """
         self.add(self._get_fetch_item(b'RFC822.HEADER'))
+        return self
 
-    def fetch_rfc822_size(self):
+    def fetch_rfc822_size(self) -> 'FetchQueryBuilder':
         """Add RFC822.SIZE item to fetch query command
 
         """
         self.add(self._get_fetch_item(b'RFC822.SIZE'))
+        return self
 
-    def fetch_rfc822_text(self):
+    def fetch_rfc822_text(self) -> 'FetchQueryBuilder':
         """Add RFC822.TEXT item to fetch query command
 
         """
         self.add(self._get_fetch_item(b'RFC822.TEXT'))
+        return self
 
     @staticmethod
-    def all(sequence=None, uids=None):
+    def all(sequence=None, uids=None) -> 'FetchQueryBuilder':
         """ALL
          Macro equivalent to: (FLAGS INTERNALDATE RFC822.SIZE ENVELOPE)
 
         :return: FetchQueryBuilder object
         """
-        query = FetchQueryBuilder(sequence, uids)
-        query.fetch_flags()
-        query.fetch_rfc822_size()
-        query.fetch_internal_date()
-        query.fetch_envelope()
-        return query
+        return FetchQueryBuilder(sequence, uids)\
+            .fetch_flags()\
+            .fetch_rfc822_size()\
+            .fetch_internal_date()\
+            .fetch_envelope()
 
     @staticmethod
-    def fast(sequence=None, uids=None):
+    def fast(sequence=None, uids=None) -> 'FetchQueryBuilder':
         """ FAST
          Macro equivalent to: (FLAGS INTERNALDATE RFC822.SIZE)
 
         :return: FetchQueryBuilder object
         """
-        query = FetchQueryBuilder(sequence, uids)
-        query.fetch_flags()
-        query.fetch_rfc822_size()
-        query.fetch_internal_date()
-        return query
+        return FetchQueryBuilder(sequence, uids)\
+            .fetch_flags()\
+            .fetch_rfc822_size()\
+            .fetch_internal_date()
 
     @staticmethod
-    def full(sequence=None, uids=None):
+    def full(sequence=None, uids=None) -> 'FetchQueryBuilder':
         """FULL
          Macro equivalent to: (FLAGS INTERNALDATE RFC822.SIZE ENVELOPE BODY)
 
         :return: FetchQueryBuilder object
         """
-        query = FetchQueryBuilder.all(sequence, uids)
-        query.fetch_body()
-        return query
+        return FetchQueryBuilder.all(sequence, uids).fetch_body()
 
 
