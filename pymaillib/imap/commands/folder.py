@@ -63,7 +63,6 @@ class ImapFolderDetailsCommand(ImapBaseCommand):
                 else:
                     value = int(value)
             result[attr] = value
-        print(result)
         return result
 
 

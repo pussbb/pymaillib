@@ -9,7 +9,7 @@
 """
 import imaplib
 
-from .._parsers import ResponseTokenizer
+from ..parsers import ResponseTokenizer
 from . import ImapBaseCommand
 from ..entity.server import Namespaces
 
