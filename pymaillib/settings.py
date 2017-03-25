@@ -30,10 +30,11 @@ class Config(dict):
     def from_envvar(self, key: str) -> 'Config':
         value = os.environ.get(key)
         if not value:
-            raise RuntimeError('Environment key {} is empty'.format(key))
+            raise RuntimeError('Environment key {} is empty'
+                               ' or not found'.format(key))
         filename = os.path.realpath(os.path.expanduser(value))
         if not os.path.exists(filename):
-            raise RuntimeError('File {} does not exisits'.format(filename))
+            raise RuntimeError('File {} does not exists'.format(filename))
         return self.from_config_file(filename)
 
     def from_config_file(self, filename: str) -> 'Config':

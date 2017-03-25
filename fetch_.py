@@ -6,9 +6,6 @@ import imaplib
 import pprint
 import os
 
-os.environ.setdefault('PYMAILLIB_CONFIG', './pymail.ini')
-
-
 from pymaillib.imap.entity.folder import ImapFolder
 from pymaillib.mailbox import UserMailbox
 from pymaillib.imap.fetch_query_builder import FetchQueryBuilder
@@ -25,9 +22,7 @@ print(query)
 
 config = Config().from_config_file('./pymail.ini')
 
-print(config)
-
-mailbox = UserMailbox('sxadmin', '1', Config().from_envvar('PYMAILLIB_CONFIG'))
+mailbox = UserMailbox('sxadmin', '1', config)
 # time.sleep(1)
 
 with mailbox.imap() as client:
