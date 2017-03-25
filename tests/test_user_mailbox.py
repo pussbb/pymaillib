@@ -5,7 +5,7 @@
 """
 import unittest
 
-from pymaillib import UserMailbox
+from pymaillib.mailbox import UserMailbox
 from pymaillib.user import UserCredentials
 
 

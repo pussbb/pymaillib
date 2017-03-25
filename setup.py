@@ -2,13 +2,11 @@
 """
 
 """
-from distutils.command.build_ext import build_ext
 
 from Cython.Build import cythonize
 from setuptools import setup, find_packages
 from setuptools.extension import Extension
 import sys
-import os
 
 if sys.version_info < (3, 5):
     print("I'm only for 3, please upgrade")
