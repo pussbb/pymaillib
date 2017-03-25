@@ -9,7 +9,6 @@
 """
 import imaplib
 import warnings
-from copy import deepcopy
 from threading import Lock, current_thread
 from datetime import datetime
 from traceback import print_exception
@@ -81,6 +80,8 @@ class LockedImapObject(LockableObject):
         self.capabilities |= set(capabilities)
         if IMAP4REV1_CAPABILITY_KEYS & self.capabilities:
             self.capabilities = self.capabilities | IMAP4_COMMANDS
+        if 'X-SCALIX-1' in self.capabilities:
+            self.capabilities.add('X-SCALIX-ID')
 
     def __enter__(self):
         self.__imap_obj = super().__enter__()

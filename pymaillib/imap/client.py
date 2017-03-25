@@ -10,6 +10,7 @@
 import imaplib
 from typing import Iterable
 
+from .commands.namespace import Namespace
 from .entity.email_message import ImapEmailMessage
 from .fetch_query_builder import FetchQueryBuilder
 from .exceptions import ImapRuntimeError, ImapObjectNotFound
@@ -281,6 +282,9 @@ class ImapClient(LockedImapObject):
         :return: dict
         """
         return self._simple_command(ImaXScalixIDCommand())
+
+    def namespace(self):
+        return self._simple_command(Namespace())
 
     def __repr__(self):
         try:

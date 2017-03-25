@@ -11,7 +11,7 @@ import imaplib
 
 from ..utils import build_imap_response_line
 from ..entity.email_message import ImapFetchedItem
-from ..exceptions import ImapRuntimeError
+from ..exceptions import ImapRuntimeError, ImapInvalidArgument
 from ..fetch_query_builder import FetchQueryBuilder
 from ..parsers import tokenize_atom_response
 from . import ImapBaseCommand
@@ -35,7 +35,7 @@ class ImapFetchCommand(ImapBaseCommand):
         :return:
         """
         if not isinstance(query, FetchQueryBuilder):
-            raise ImapRuntimeError('Argument must instance of FetchProfile')
+            raise ImapInvalidArgument('query', query)
         self.__fetch_query = query
 
     def run(self, imap_obj: imaplib.IMAP4):

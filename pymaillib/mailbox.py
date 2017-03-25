@@ -7,8 +7,7 @@
     :copyright: (c) 2017 WTFPL.
     :license: WTFPL, see LICENSE for more details.
 """
-
-from copy import deepcopy
+import warnings
 from typing import Any
 
 from .settings import Config
@@ -83,7 +82,10 @@ class UserMailbox(object):
         raise NotImplemented
 
     def __del__(self):
-        self.close()
+        try:
+            self.close()
+        except Exception as exp:
+            warnings.warn(exp, RuntimeWarning)
 
     def close(self):
         """Clean up. Close all conections et.
@@ -107,7 +109,8 @@ class UserMailbox(object):
 
         :return:
         """
-        raise NotImplemented
+        pass
+        #raise NotImplemented
 
     def mailboxes(self) -> dict:
         """Get list of folders from IMAP server

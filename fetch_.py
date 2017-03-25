@@ -30,6 +30,9 @@ with mailbox.imap() as client:
 
     #  BODY[] BODY.PEEK[HEADER] BODY.PEEK[1.MIME] BODY.PEEK[1] RFC822
     #query.add('BODY.PEEK[HEADER.FIELDS (SUBJECT)]')
+    #print(client.capabilities)
+    #print(client.scalix_id())
+    print(client.namespace())
 
     for folder in client.folders():
         print(folder)
