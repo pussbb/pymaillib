@@ -7,8 +7,9 @@
 from pymaillib.imap.client import ImapClient
 from pymaillib.imap.commands import ImapBaseCommand
 from pymaillib.imap.entity.folder import ImapFolder
-from pymaillib.imap.exceptions import ImapIllegalStateException, \
-    ImapObjectNotFound, ImapAlreadyExists, ImapClientError, ImapRuntimeError
+from pymaillib.imap.exceptions.base import ImapIllegalStateException, \
+    ImapObjectNotFound, ImapClientError, ImapRuntimeError
+from pymaillib.imap.exceptions.rfc5530 import ImapAlreadyExists
 from pymaillib.imap.fetch_query_builder import FetchQueryBuilder
 from pymaillib.user import UserCredentials
 from pymaillib.imap import imaplib
@@ -22,7 +23,7 @@ class Imap(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.reload_settings()
-        self.imap = ImapClient(self.sxmsettings.IMAP_CONFIG,
+        self.imap = ImapClient(self.mailsettings.IMAP_CONFIG,
                                UserCredentials('sxadmin', '1'))
 
     def test_init_imap_client(self):
@@ -138,4 +139,4 @@ class Imap(BaseTestCase):
     def test_fetch(self):
         with self.imap as client:
             client.messages(client.folder_by_name('INBOX'),
-                            FetchQueryBuilder.all())
+                            FetchQueryBuilder.all(1))

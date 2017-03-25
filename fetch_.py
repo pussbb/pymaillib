@@ -17,7 +17,7 @@ query = FetchQueryBuilder.fast(sequence=1)
 query.fetch_envelope()
 query.fetch_body_peek()
 print(query)
-raise SystemExit
+#raise SystemExit
 
 
 mailbox = UserMailbox('sxadmin', '1')

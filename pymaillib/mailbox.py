@@ -123,9 +123,6 @@ class UserMailbox(object):
     def __str__(self):
         return repr(self)
 
-    def __unicode__(self):
-        return repr(self)
-
     def __repr__(self):
         return 'Mail session for user "{auth.username}"'.format(
             auth=self.auth_data

@@ -41,7 +41,7 @@ class AtomParserTest(unittest.TestCase):
         self.assertIn('specify sequence or uid', str(excp.exception))
 
         with self.assertRaises(ImapRuntimeError) as excp:
-            FetchQueryBuilder(seq_ids='', uids='')
+            FetchQueryBuilder(seq_ids='i', uids='o')
         self.assertIn(' But not both', str(excp.exception))
 
         self.__check_substring(

@@ -92,10 +92,9 @@ class FetchQueryBuilder(object):
         self.fetch_uid()
         if seq_ids and uids:
             raise ImapRuntimeError('You can specify only sequence or uid '
-                                   '(range).')
+                                   '(range). But not both.')
         if not seq_ids and not uids:
-            raise ImapRuntimeError('Please specify sequence or uid range.'
-                                   ' But not both.')
+            raise ImapRuntimeError('Please specify sequence or uid range.')
 
         self.__uids = uids
         self.__seq = seq_ids
@@ -190,7 +189,7 @@ class FetchQueryBuilder(object):
 
     def __body_item(self, peek: bool, part: str=None, size: int = 0) \
             -> FetchItem:
-        """
+        """Create BODY section
         
         :param peek: use PEEK 
         :param part: part according RFC

@@ -282,9 +282,6 @@ class ImapClient(LockedImapObject):
         """
         return self._simple_command(ImaXScalixIDCommand())
 
-    def __unicode__(self):
-        return repr(self)
-
     def __repr__(self):
         try:
             opened = self.opened

@@ -159,7 +159,7 @@ cdef tuple _get_transferred(const string & line):
     cdef size_t part_end = line.find_last_of(b'>')
     if is_range_valid(pos, part_end, line.size()):
         return pos, line.substr(pos+1,part_end-pos-1)
-    return pos, b''
+    return pos, None
 
 
 def get_transferred(line: bytes):
@@ -171,10 +171,10 @@ cdef tuple _get_part(const string & line):
     cdef size_t part_end = line.find_last_of(b']')
     if is_range_valid(pos, part_end, line.size()):
         return pos, line.substr(pos + 1, part_end - pos - 1)
-    return pos, b''
+    return pos, None
 
-def get_part(line: bytes):
-    return _get_part(<string>line)[-1]
+def get_part(line: bytes, default=None):
+    return _get_part(<string>line)[-1] or default
 
 
 cpdef tuple parse_atom_name(const string & name):

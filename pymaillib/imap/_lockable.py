@@ -111,7 +111,6 @@ class LockedImapObject(LockableObject):
             raise ImapIllegalStateException('Connection was closed.'
                                             ' Please recreate.')
         result = command.run(self.__imap_obj)
-        command.untagged_responses = deepcopy(self.__imap_obj.untagged_responses)
         self.last_untagged_responses = self.__imap_obj.untagged_responses
 
         if self.last_untagged_responses:

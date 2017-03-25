@@ -35,14 +35,6 @@ class ImapBaseCommand(object):
         assert self._COMMAND, ImapRuntimeError('Command name can not be empty')
         return self._COMMAND
 
-    @property
-    def untagged_response(self):
-        return getattr(self, '_untagged_response', {})
-
-    @untagged_response.setter
-    def untagged_response(self, value):
-        self._untagged_response = value
-
     def run(self, imap_obj: imaplib.IMAP4):
         """Abstract function child classes should implement it
 
