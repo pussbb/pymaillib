@@ -9,9 +9,10 @@
 """
 
 from copy import deepcopy
+from typing import Any
 
+from .settings import Config
 from .user import UserCredentials
-from .settings import IMAP_CONFIG
 from .imap.client import ImapClient
 from .imap.exceptions import ImapReferralsException
 import re
@@ -26,7 +27,7 @@ class UserMailbox(object):
 
     """
 
-    def __init__(self, username, password):
+    def __init__(self, username: Any, password: Any, config: Config):
         """Creates new instance of the class for specified user.
 
         Rasies:
@@ -39,7 +40,7 @@ class UserMailbox(object):
         assert username, 'Username cannot be empty'
         assert password, 'Username cannot be empty'
         self.__auth_data = UserCredentials(username, password)
-        self.__imap_settings = deepcopy(IMAP_CONFIG)
+        self.__imap_settings = config
         self.__imap_store = None
 
     @property

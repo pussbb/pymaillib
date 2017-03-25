@@ -7,11 +7,12 @@
     :copyright: (c) 2017 WTFPL.
     :license: WTFPL, see LICENSE for more details.
 """
+import imaplib
 import re
 
 IMAP_DEFAULTS = {
     'host': '',
-    'port': 0,  # imaplib.IMAP4_PORT,
+    'port': imaplib.IMAP4_PORT,
     'secure': False,
     'keyfile': None,
     'certfile': None

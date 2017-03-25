@@ -10,39 +10,39 @@
 
 import os
 from configparser import ConfigParser
+from copy import deepcopy
+
 from .imap.constants import IMAP_DEFAULTS
 
-_DEFAULT_OPTIONS = {
-    'imap': IMAP_DEFAULTS,
-}
 
-CONFIG = ConfigParser(allow_no_value=True)
-__CONFIG_FILE = os.environ.get('PYMAILLIB_CONFIG', './sxmail.ini')
-CONFIG.read_dict(_DEFAULT_OPTIONS)
-
-filename = os.path.realpath(os.path.expanduser(__CONFIG_FILE))
-if os.path.exists(filename):
-    CONFIG.read_file(open(filename))
-# TODO uncoment it when we will be ready for this
-"""
-else:
-    raise RuntimeError(
-        "Config file was not found (expected to load from {filename})".format(
-            filename=filename
-        )
-    )
-"""
-
-IMAP_CONFIG = {}
-imap_prop_func_map = {
+CONFIG_PROP_FUNC_MAP = {
     'secure': 'getboolean',
     'port': 'getint'
 }
-for key in CONFIG['imap']:
-    func = imap_prop_func_map.get(key, 'get')
-    IMAP_CONFIG[key] = getattr(CONFIG['imap'], func)(key)
 
-smtp_prop_func_map = {
-    'secure': 'getboolean',
-    'port': 'getint'
-}
+
+class Config(dict):
+
+    def __init__(self, defaults: dict=None):
+        super().__init__(defaults or {})
+        self['imap'] = {**deepcopy(IMAP_DEFAULTS), **self.get('imap', {})}
+
+    def from_envvar(self, key: str) -> 'Config':
+        value = os.environ.get(key)
+        if not value:
+            raise RuntimeError('Environment key {} is empty'.format(key))
+        filename = os.path.realpath(os.path.expanduser(value))
+        if not os.path.exists(filename):
+            raise RuntimeError('File {} does not exisits'.format(filename))
+        return self.from_config_file(filename)
+
+    def from_config_file(self, filename: str) -> 'Config':
+        config_parser = ConfigParser(allow_no_value=True)
+        config_parser.read(filename)
+        for section in config_parser.sections():
+            section_data = {}
+            for key in config_parser[section]:
+                func = CONFIG_PROP_FUNC_MAP.get(key, 'get')
+                section_data[key] = getattr(config_parser[section], func)(key)
+            self[section] = {**self.get(section, {}), **section_data}
+        return self

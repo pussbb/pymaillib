@@ -7,7 +7,6 @@ import os
 import unittest
 
 import pymaillib.settings as mailsettings
-from importlib import reload
 
 
 class BaseTestCase(unittest.TestCase):
@@ -17,9 +16,6 @@ class BaseTestCase(unittest.TestCase):
             os.path.dirname(os.path.realpath(__file__)),
             'test_settings.ini',
         )
-        self.mailsettings = mailsettings
 
-    def reload_settings(self):
-        os.environ['PYMAILLIB_CONFIG'] = self.test_conf
-        reload(mailsettings)
+        self.config = mailsettings.Config().from_config_file(self.test_conf)
 

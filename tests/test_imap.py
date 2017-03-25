@@ -22,8 +22,7 @@ class Imap(BaseTestCase):
 
     def setUp(self):
         super().setUp()
-        self.reload_settings()
-        self.imap = ImapClient(self.mailsettings.IMAP_CONFIG,
+        self.imap = ImapClient(self.config.get('imap'),
                                UserCredentials('sxadmin', '1'))
 
     def test_init_imap_client(self):
