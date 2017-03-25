@@ -92,19 +92,21 @@ class FetchQueryBuilder(object):
         self.fetch_uid()
         if seq_ids and uids:
             raise ImapRuntimeError('You can specify only sequence or uid '
-                                   '(range). But not both.')
+                                   '(range).')
         if not seq_ids and not uids:
-            raise ImapRuntimeError('Please specify sequence or uid range')
+            raise ImapRuntimeError('Please specify sequence or uid range.'
+                                   ' But not both.')
 
         self.__uids = uids
         self.__seq = seq_ids
         self.__peek = False
+        self.__header_items = set()
 
     def add(self, *args) -> 'FetchQueryBuilder':
         """Add some data items for IMAP FETCH command
 
         :param args:
-        :return:
+        :return: FetchQueryBuilder obj
         """
         for arg in args:
             self.__items.add(str(arg))
@@ -114,7 +116,7 @@ class FetchQueryBuilder(object):
     def uids(self) -> Any:
         """List of UID's to fetch from server
 
-        :return:
+        :return: Any
         """
         return self.__uids
 
@@ -122,7 +124,7 @@ class FetchQueryBuilder(object):
     def sequence(self) -> Any:
         """List of sequence numbers to fetch from the server
 
-        :return:
+        :return: Any
         """
         return self.__seq
 
@@ -130,7 +132,7 @@ class FetchQueryBuilder(object):
         """Set using PEEK for fetching some data.
         
         :param value: 
-        :return: 
+        :return: FetchQueryBuilder obj
         """
         self.__peek = value
         return self
@@ -138,9 +140,16 @@ class FetchQueryBuilder(object):
     def build(self) -> Tuple[str, str]:
         """Builds valid query string for IMAP FETCH command
 
-        :return: tuple
+        :return: tuple(items range, data to fetch)
         """
-        return self.__build_range(), '({})'.format(' '.join(self.__items))
+        header_items = ""
+        if self.__header_items:
+            header_items = 'HEADER.FIELDS ({})'.format(
+                ' '.join(self.__header_items)
+            )
+        return self.__build_range(), '({})'.format(
+            ' '.join(list(self.__items) + [header_items])
+        )
 
     def __build_range(self) -> str:
         """Helper function to build range of fetch items.  
@@ -157,16 +166,36 @@ class FetchQueryBuilder(object):
         exception for now if name was not found it take base class FetchItem
 
         :param name:
-        :return:
+        :return: FetchQueryBuilder obj
         """
         return FETCH_ITEMS.get(name, FetchItem)()
+
+    def fetch_header(self) -> 'FetchQueryBuilder':
+        """Alias to fetch_rfc822_header
+        
+        :param body_part: 
+        :return: FetchQueryBuilder obj
+        """
+        return self.fetch_body('HEADER')
+
+    def fetch_header_item(self, item:str) -> 'FetchQueryBuilder':
+        """fetch header item
+        
+        :param item: header item name 
+        :return: FetchQueryBuilder
+        """
+        self.__header_items.add(item)
+        return self
 
     def fetch_body(self, part=None, size=0) -> 'FetchQueryBuilder':
         """Add to a fetch command BODY ATOM
 
         :param part: part according RFC
         :param size: length of requested part or body
+        :return: FetchQueryBuilder obj
         """
+        if self.__peek:
+            return self.fetch_body_peek(part, size)
         body_part = self._get_fetch_item(b'BODY')
         body_part.size = size
         body_part.part = part
@@ -178,6 +207,7 @@ class FetchQueryBuilder(object):
 
         :param part: part according RFC
         :param size: length of requested part or body
+        :return: FetchQueryBuilder obj
         """
         body_part = self._get_fetch_item(b'BODY.PEEK')
         body_part.size = size
@@ -188,13 +218,15 @@ class FetchQueryBuilder(object):
     def fetch_envelope(self) -> 'FetchQueryBuilder':
         """Add ENVELOPE message item to fetch query command
 
+        :return: FetchQueryBuilder obj
         """
         self.add(self._get_fetch_item(b'ENVELOPE'))
         return self
 
     def fetch_body_structure(self) -> 'FetchQueryBuilder':
         """Add BODYSTRUCTURE message item to fetch query command
-
+        
+        :return: FetchQueryBuilder obj
         """
         self.add(self._get_fetch_item(b'BODYSTRUCTURE'))
         return self
@@ -202,6 +234,7 @@ class FetchQueryBuilder(object):
     def fetch_uid(self) -> 'FetchQueryBuilder':
         """Add UID message item to fetch query command
 
+        :return: FetchQueryBuilder obj
         """
         self.add(self._get_fetch_item(b'UID'))
         return self
@@ -209,6 +242,7 @@ class FetchQueryBuilder(object):
     def fetch_flags(self) -> 'FetchQueryBuilder':
         """Add FLAGS message item to fetch query command
 
+        :return: FetchQueryBuilder obj
         """
         self.add(self._get_fetch_item(b'FLAGS'))
         return self
@@ -216,6 +250,7 @@ class FetchQueryBuilder(object):
     def fetch_internal_date(self) -> 'FetchQueryBuilder':
         """Add INTERNALDATE message item to fetch query command
 
+        :return: FetchQueryBuilder obj
         """
         self.add(self._get_fetch_item(b'INTERNALDATE'))
         return self
@@ -223,6 +258,7 @@ class FetchQueryBuilder(object):
     def fetch_rfc822(self) -> 'FetchQueryBuilder':
         """Add RFC822 item to fetch query command
 
+        :return: FetchQueryBuilder obj
         """
         self.add(self._get_fetch_item(b'RFC822'))
         return self
@@ -230,6 +266,7 @@ class FetchQueryBuilder(object):
     def fetch_rfc822_header(self) -> 'FetchQueryBuilder':
         """Add RFC822.HEADER item to fetch query command
 
+        :return: FetchQueryBuilder obj
         """
         self.add(self._get_fetch_item(b'RFC822.HEADER'))
         return self
@@ -237,6 +274,7 @@ class FetchQueryBuilder(object):
     def fetch_rfc822_size(self) -> 'FetchQueryBuilder':
         """Add RFC822.SIZE item to fetch query command
 
+        :return: FetchQueryBuilder obj
         """
         self.add(self._get_fetch_item(b'RFC822.SIZE'))
         return self
@@ -244,6 +282,7 @@ class FetchQueryBuilder(object):
     def fetch_rfc822_text(self) -> 'FetchQueryBuilder':
         """Add RFC822.TEXT item to fetch query command
 
+        :return: FetchQueryBuilder obj
         """
         self.add(self._get_fetch_item(b'RFC822.TEXT'))
         return self
@@ -280,6 +319,7 @@ class FetchQueryBuilder(object):
 
         :return: FetchQueryBuilder object
         """
+        # TODO generates BODY[] instead of BODY
         return FetchQueryBuilder.all(sequence, uids).fetch_body()
 
 

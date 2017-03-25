@@ -5,8 +5,9 @@
 """
 import unittest
 
+from pymaillib.imap.exceptions import ImapRuntimeError
 from pymaillib.imap.fetch_query_builder import build_numeric_sequence, \
-    build_sequence
+    build_sequence, FetchQueryBuilder
 
 
 class AtomParserTest(unittest.TestCase):
@@ -32,3 +33,50 @@ class AtomParserTest(unittest.TestCase):
 
         for raw, res in data:
             self.assertEqual(build_sequence(raw), res)
+
+    def test_fetch_query_builder(self):
+
+        with self.assertRaises(ImapRuntimeError) as excp:
+            FetchQueryBuilder()
+        self.assertIn('specify sequence or uid', str(excp.exception))
+
+        with self.assertRaises(ImapRuntimeError) as excp:
+            FetchQueryBuilder(seq_ids='', uids='')
+        self.assertIn(' But not both', str(excp.exception))
+
+        self.__check_substring(
+            str(FetchQueryBuilder.all(1)),
+            '1 (UID FLAGS INTERNALDATE RFC822.SIZE ENVELOPE)'
+        )
+
+        self.__check_substring(
+            str(FetchQueryBuilder.fast(1)),
+            '1 (UID FLAGS INTERNALDATE RFC822.SIZE)'
+        )
+
+        self.__check_substring(
+            str(FetchQueryBuilder.full(1)),
+            '1 (UID FLAGS INTERNALDATE RFC822.SIZE ENVELOPE BODY)'
+        )
+
+        query = FetchQueryBuilder(1).fetch_header_item('SUBJECT')
+
+        self.__check_substring(
+            str(query),
+            '1 (UID BODY[HEADER.FIELDS (SUBJECT)])'
+        )
+
+        query.set_peek(True)
+        self.__check_substring(
+            str(query),
+            '1 (UID BODY.PEEK[HEADER.FIELDS (SUBJECT)])'
+        )
+
+        self.__check_substring(
+            str(FetchQueryBuilder(1)),
+            '1 (UID)'
+        )
+
+    def __check_substring(self, generated: str, reference: str):
+        for item in generated.split(' '):
+            self.assertIn(item.strip('()'), reference)

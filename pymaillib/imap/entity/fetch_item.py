@@ -37,8 +37,6 @@ class FetchItem(object):
 
         :return:
         """
-        if self._part is None:
-            return ''
         return self._part
 
     @part.setter
@@ -73,7 +71,7 @@ class FetchItem(object):
 
     def __repr__(self):
         res = [self.name.decode()]
-        if self.allow_part:
+        if self.allow_part and self.part:
             res.extend(['[', str(self.part), ']'])
         if self.partial and self._size:
             res.extend(['<', str(self._size), '>'])
