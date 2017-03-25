@@ -147,9 +147,9 @@ class FetchQueryBuilder(object):
             items = 'HEADER.FIELDS ({})'.format(
                 ' '.join(self.__header_items)
             )
-            header_items = self.__body_item(self.__peek, items, 0)
+            header_items = str(self.__body_item(self.__peek, items, 0))
         return self.__build_range(), '({})'.format(
-            ' '.join(list(self.__items) + [str(header_items)])
+            ' '.join(list(self.__items) + [header_items])
         )
 
     def __build_range(self) -> str:
