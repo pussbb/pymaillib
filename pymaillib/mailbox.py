@@ -40,7 +40,7 @@ class UserMailbox(object):
         assert username, 'Username cannot be empty'
         assert password, 'Username cannot be empty'
         self.__auth_data = UserCredentials(username, password)
-        self.__imap_settings = config
+        self.__config = config
         self.__imap_store = None
 
     @property
@@ -73,10 +73,10 @@ class UserMailbox(object):
         if attempts > 10:
             raise RecursionError('Giving up with imap referrals.')
         try:
-            return ImapClient(self.__imap_settings, self.__auth_data)
+            return ImapClient(self.__config['imap'], self.__auth_data)
         except ImapReferralsException as ex:
             _res = re.search(IMAP_URL_PATTERN, ex.imap_url)
-            self.__imap_settings['host'] = _res.group('host')
+            self.__config['imap']['host'] = _res.group('host')
             return self.__init_imap(attempts + 1)
 
     def smtp(self):
