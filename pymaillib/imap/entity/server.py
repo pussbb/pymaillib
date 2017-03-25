@@ -4,7 +4,7 @@
 """
 from collections import namedtuple
 
-from imap.entity import SlotBasedImapEntity
+from . import SlotBasedImapEntity
 from ...user import UserInfo
 
 ServerInfo = namedtuple('ServerInfo', ['imap_name', 'imap_version', 'host',
@@ -38,47 +38,29 @@ def from_id_command(data: dict, host: str, port: int) -> ServerInfo:
         user_info
     )
 
+
 class ImapNamespace(SlotBasedImapEntity):
-    __slots__ = {'__name', '__separator'}
 
-    def __init__(self, name, separator):
-        self.__name = name
-        self.__separator = separator
+    __slots__ = {'name', 'separator'}
 
-    @property
-    def name(self):
-        return self.__name
-
-    @property
-    def separator(self):
-        return self.__separator
-
-    def dump(self):
-        return {
-            'name': self.__name,
-            'separator': self.__separator,
-        }
+    @staticmethod
+    def parse(data):
+        raise NotImplementedError()
 
 
 class Namespaces(SlotBasedImapEntity):
-    __slots__ = ('_private', '_other_users', '_public_folders')
-
-    def __init__(self, private, other_users, public_folders):
-        self._private = private
-        self._other_users = other_users
-        self._public_folders = public_folders
-
-    def dump(self):
-        return {
-            'private': self._private,
-            'other_users': self._other_users,
-            'public_folders': self._public_folders
-        }
+    __slots__ = ('private', 'other_users', 'public_folders')
 
     @staticmethod
     def parse(data):
         private, other_users, public_folders = data
+
         def to_namespace_list(items):
+            """Convert raw list data into list with Namespace's objects
+            
+            :param items: 
+            :return: 
+            """
             res = []
             if not items:
                 return res

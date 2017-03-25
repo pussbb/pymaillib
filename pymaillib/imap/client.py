@@ -13,14 +13,11 @@ from typing import Iterable
 from .commands.namespace import Namespace
 from .entity.email_message import ImapEmailMessage
 from .fetch_query_builder import FetchQueryBuilder
-from .exceptions import ImapRuntimeError, ImapObjectNotFound
+from .exceptions import ImapObjectNotFound
 from ..user import UserCredentials
 from ._lockable import LockedImapObject
-from .commands.folder import ImapFolderDetailsCommand, ImapSelectFolderCommand
+from .commands.folder import *
 from .commands.unselect import ImapUnSelectFolderCommand
-from .commands.folder_create import ImapCreateFolderCommand
-from .commands.folder_delete import ImapDeleteFolderCommand
-from .commands.folder_rename import ImapRenameFolderCommand
 from .commands.fetch import ImapFetchCommand
 from .commands.id import ImapIDCommand
 from .commands.scalix_id import ImaXScalixIDCommand
