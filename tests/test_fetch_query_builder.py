@@ -59,17 +59,17 @@ class AtomParserTest(unittest.TestCase):
             '1 (UID FLAGS INTERNALDATE RFC822.SIZE ENVELOPE BODY)'
         )
 
-        query = FetchQueryBuilder(1).fetch_header_item('SUBJECT')
+        query = FetchQueryBuilder(1).fetch_header_item('SUBJECT').fetch_header_item('OOO')
 
         self.__check_substring(
             str(query),
-            '1 (UID BODY[HEADER.FIELDS (SUBJECT)])'
+            '1 (UID BODY[HEADER.FIELDS (SUBJECT OOO)])'
         )
 
         query.set_peek(True)
         self.__check_substring(
             str(query),
-            '1 (UID BODY.PEEK[HEADER.FIELDS (SUBJECT)])'
+            '1 (UID BODY.PEEK[HEADER.FIELDS (SUBJECT OOO)])'
         )
 
         self.__check_substring(
@@ -77,6 +77,14 @@ class AtomParserTest(unittest.TestCase):
             '1 (UID)'
         )
 
+        self.__check_substring(
+            str(FetchQueryBuilder(1).add('CUSTOM')),
+            '1 (UID CUSTOM)'
+        )
+
     def __check_substring(self, generated: str, reference: str):
+        translate_table = ''.maketrans('()]', '   ')
         for item in generated.split(' '):
-            self.assertIn(item.strip('()'), reference)
+            self.assertIn(item.translate(translate_table).strip(), reference)
+        for item in reference.split(' '):
+            self.assertIn(item.translate(translate_table).strip(), generated)

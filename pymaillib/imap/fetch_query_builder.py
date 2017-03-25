@@ -144,11 +144,12 @@ class FetchQueryBuilder(object):
         """
         header_items = ""
         if self.__header_items:
-            header_items = 'HEADER.FIELDS ({})'.format(
+            items = 'HEADER.FIELDS ({})'.format(
                 ' '.join(self.__header_items)
             )
+            header_items = self.__body_item(self.__peek, items, 0)
         return self.__build_range(), '({})'.format(
-            ' '.join(list(self.__items) + [header_items])
+            ' '.join(list(self.__items) + [str(header_items)])
         )
 
     def __build_range(self) -> str:
@@ -187,32 +188,41 @@ class FetchQueryBuilder(object):
         self.__header_items.add(item)
         return self
 
+    def __body_item(self, peek: bool, part: str=None, size: int = 0) \
+            -> FetchItem:
+        """
+        
+        :param peek: use PEEK 
+        :param part: part according RFC
+        :param size: length of part or body
+        :return: FetchItem
+        """
+        if peek:
+            body_part = self._get_fetch_item(b'BODY.PEEK')
+        else:
+            body_part = self._get_fetch_item(b'BODY')
+        body_part.size = size
+        body_part.part = part
+        return body_part
+
     def fetch_body(self, part=None, size=0) -> 'FetchQueryBuilder':
         """Add to a fetch command BODY ATOM
 
         :param part: part according RFC
-        :param size: length of requested part or body
+        :param size: length of part or body
         :return: FetchQueryBuilder obj
         """
-        if self.__peek:
-            return self.fetch_body_peek(part, size)
-        body_part = self._get_fetch_item(b'BODY')
-        body_part.size = size
-        body_part.part = part
-        self.add(body_part)
+        self.add(self.__body_item(self.__peek, part, size))
         return self
 
     def fetch_body_peek(self, part=None, size=0) -> 'FetchQueryBuilder':
         """Add to a fetch command BODY.PEEK ATOM
 
         :param part: part according RFC
-        :param size: length of requested part or body
+        :param size: length of part or body
         :return: FetchQueryBuilder obj
         """
-        body_part = self._get_fetch_item(b'BODY.PEEK')
-        body_part.size = size
-        body_part.part = part
-        self.add(body_part)
+        self.add(self.__body_item(True, part, size))
         return self
 
     def fetch_envelope(self) -> 'FetchQueryBuilder':
@@ -319,7 +329,6 @@ class FetchQueryBuilder(object):
 
         :return: FetchQueryBuilder object
         """
-        # TODO generates BODY[] instead of BODY
         return FetchQueryBuilder.all(sequence, uids).fetch_body()
 
 
