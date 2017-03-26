@@ -55,7 +55,7 @@ class Namespaces(SlotBasedImapEntity):
     def build(data):
         private, other_users, public_folders = data
 
-        def to_namespace_list(items):
+        def to_namespace_list(items: list) -> list:
             """Convert raw list data into list with Namespace's objects
             
             :param items: 
@@ -71,4 +71,3 @@ class Namespaces(SlotBasedImapEntity):
         return Namespaces(private=to_namespace_list(private),
                           other_users=to_namespace_list(other_users),
                           public_folders=to_namespace_list(public_folders))
-

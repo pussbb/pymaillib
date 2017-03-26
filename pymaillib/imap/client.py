@@ -7,9 +7,9 @@
     :copyright: (c) 2017 WTFPL.
     :license: WTFPL, see LICENSE for more details.
 """
-import imaplib
 from typing import Iterable
 
+from . imap4 import IMAP4_SSL, IMAP4
 from .commands.namespace import Namespace
 from .entity.email_message import ImapEmailMessage
 from .fetch_query_builder import FetchQueryBuilder
@@ -107,6 +107,14 @@ class ImapClient(LockedImapObject):
         """
         return self.__settings.get('certfile')
 
+    @property
+    def timeout(self):
+        """Socket timeout
+        
+        :return: 
+        """
+        return self.__settings.get('timeout', 60)
+
     def __init_imap_obj(self) -> imaplib.IMAP4:
         """Creates new IMAP4 object
 
@@ -116,7 +124,7 @@ class ImapClient(LockedImapObject):
             return self.__init_imapssl_obj()
         if not self.port:
             self.__settings['port'] = str(imaplib.IMAP4_PORT)
-        return imaplib.IMAP4(host=self.host, port=self.port)
+        return IMAP4(host=self.host, port=self.port, timeout=self.timeout)
 
     def __init_imapssl_obj(self) -> imaplib.IMAP4_SSL:
         """ Creates new IMAP4 object with secure connection
@@ -126,8 +134,8 @@ class ImapClient(LockedImapObject):
         if not self.port:
             self.__settings['port'] = str(imaplib.IMAP4_SSL_PORT)
 
-        return imaplib.IMAP4_SSL(host=self.host, port=self.port,
-                                 keyfile=self.keyfile, certfile=self.certfile)
+        return IMAP4_SSL(host=self.host, port=self.port, keyfile=self.keyfile,
+                         certfile=self.certfile, timeout=self.timeout)
 
     def folders(self, with_stats=False) -> Iterable[ImapFolder]:
         """Get folder list from IMAP server. Executes LIST command at IMAP
