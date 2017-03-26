@@ -94,9 +94,8 @@ class FetchItem(object):
         return ''.join(res)
 
     @staticmethod
-    def parse(atom_data, value):
-        """Abstract method all sub classes must implement them
-            see https://tools.ietf.org/html/rfc3501#page-73
+    def build(atom_data, value):
+        """Abstract method  for all sub classes must implement them
 
         :param atom_data: dict
         :param value: bytes
@@ -116,7 +115,7 @@ class UIDFetchItem(FetchItem):
     name = rb'UID'
 
     @staticmethod
-    def parse(atom_data, value):
+    def build(atom_data, value):
         """ A number expressing the unique identifier of the message.
 
         :param atom_data: bytes
@@ -234,7 +233,7 @@ class BodyFetchItem(FetchItem):
     partial = True
 
     @staticmethod
-    def parse(atom_data, value):
+    def build(atom_data, value):
         """ BODY[<section>]<<origin octet>>
         A string expressing the body contents of the specified section.
         The string SHOULD be interpreted by the client according to the
@@ -271,7 +270,7 @@ class BodyFetchItem(FetchItem):
    """
         if atom_data.get('part') is None:
             return {
-                'BODYSTRUCTURE': BodyStructureFetchItem.parse(atom_data, value)
+                'BODYSTRUCTURE': BodyStructureFetchItem.build(atom_data, value)
             }
 
         part = atom_data.get('part').decode()
@@ -293,7 +292,7 @@ class BodyStructureFetchItem(FetchItem):
     name = rb'BODYSTRUCTURE'
 
     @staticmethod
-    def parse(atom_data, value):
+    def build(atom_data, value):
         """BODYSTRUCTURE
          A parenthesized list that describes the [MIME-IMB] body
          structure of a message.  This is computed by the server by
@@ -451,7 +450,7 @@ class EnvelopeFetchItem(FetchItem):
     name = rb'ENVELOPE'
 
     @staticmethod
-    def parse(atom_data, value):
+    def build(atom_data, value):
         """ENVELOPE
         A parenthesized list that describes the envelope structure of a
         message.  This is computed by the server by parsing the
@@ -527,7 +526,7 @@ class FlagsFetchItem(FetchItem):
     name = rb'FLAGS'
 
     @staticmethod
-    def parse(atom_data, value):
+    def build(atom_data, value):
         """FLAGS
          A parenthesized list of flags that are set for this message.
 
@@ -548,7 +547,7 @@ class IternalDateFetchItem(FetchItem):
     name = rb'INTERNALDATE'
 
     @staticmethod
-    def parse(atom_data, value):
+    def build(atom_data, value):
         """INTERNALDATE
          A string representing the internal date of the message.
 
@@ -575,7 +574,7 @@ class RFC822FetchItem(FetchItem):
     partial = False
 
     @staticmethod
-    def parse(atom_data, value):
+    def build(atom_data, value):
         """
 
         :param atom_data:
@@ -626,7 +625,7 @@ class XCutomFetchItem(FetchItem):
     name = rb'X-'
 
     @staticmethod
-    def parse(atom_data, value):
+    def build(atom_data, value):
         """
 
         :param atom_data:

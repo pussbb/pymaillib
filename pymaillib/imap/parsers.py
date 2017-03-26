@@ -34,4 +34,4 @@ def tokenize_atom_response(line: bytes, literals: list):
     for item in rest_items:
         name, atom_data = parse_atom_name(item)
         atom = FETCH_ITEMS.get(name, __DEFAULT_ATOM_PARSER)
-        yield name.decode(), atom.parse(atom_data, rest_items.__next__())
+        yield name.decode(), atom.build(atom_data, rest_items.__next__())
