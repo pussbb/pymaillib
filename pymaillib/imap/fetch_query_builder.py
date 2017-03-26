@@ -187,41 +187,48 @@ class FetchQueryBuilder(object):
         self.__header_items.add(item)
         return self
 
-    def __body_item(self, peek: bool, part: str=None, size: int = 0) \
-            -> FetchItem:
+    def __body_item(self, peek: bool, part: str=None, size: int = 0,
+                    start_from: int = 0) -> FetchItem:
         """Create BODY section
         
         :param peek: use PEEK 
         :param part: part according RFC
         :param size: length of part or body
+        :param start_from: starting position of first octets to fetch 
         :return: FetchItem
         """
+
         if peek:
             body_part = self._get_fetch_item(b'BODY.PEEK')
         else:
             body_part = self._get_fetch_item(b'BODY')
         body_part.size = size
+        body_part.start_from = start_from
         body_part.part = part
         return body_part
 
-    def fetch_body(self, part=None, size=0) -> 'FetchQueryBuilder':
+    def fetch_body(self, part: str=None, size: int =0, start_from: int=0) \
+            -> 'FetchQueryBuilder':
         """Add to a fetch command BODY ATOM
 
         :param part: part according RFC
         :param size: length of part or body
+        :param start_from: starting position of first octets to fetch 
         :return: FetchQueryBuilder obj
         """
-        self.add(self.__body_item(self.__peek, part, size))
+        self.add(self.__body_item(self.__peek, part, size, start_from))
         return self
 
-    def fetch_body_peek(self, part=None, size=0) -> 'FetchQueryBuilder':
+    def fetch_body_peek(self, part: str=None, size: int =0, start_from: int=0) \
+            -> 'FetchQueryBuilder':
         """Add to a fetch command BODY.PEEK ATOM
 
         :param part: part according RFC
         :param size: length of part or body
+        :param start_from: starting position of first octets to fetch 
         :return: FetchQueryBuilder obj
         """
-        self.add(self.__body_item(True, part, size))
+        self.add(self.__body_item(True, part, size, start_from))
         return self
 
     def fetch_envelope(self) -> 'FetchQueryBuilder':

@@ -81,6 +81,8 @@ class AtomParserTest(unittest.TestCase):
             str(FetchQueryBuilder(1).add('CUSTOM')),
             '1 (UID CUSTOM)'
         )
+        self.assertIn('2.3', str(FetchQueryBuilder(1).fetch_body('1', 3, 2)))
+        self.assertIn('0.3', str(FetchQueryBuilder(1).fetch_body('1', 3)))
 
     def __check_substring(self, generated: str, reference: str):
         translate_table = ''.maketrans('()]', '   ')

@@ -20,7 +20,7 @@ class FetchItem(object):
         see https://tools.ietf.org/html/rfc3501#section-6.4.5
     """
 
-    __slots__ = ('_part', '_size')
+    __slots__ = ('_part', '_size', '_start_from')
 
     name = None
     allow_part = False
@@ -29,6 +29,7 @@ class FetchItem(object):
     def __init__(self):
         self._size = 0
         self._part = ''
+        self._start_from = 0
 
     @property
     def part(self):
@@ -67,14 +68,29 @@ class FetchItem(object):
         """
         if not self.partial:
             raise RuntimeError('Not supported by this atom')
-        self._size = value
+        self._size = int(value)
+
+    @property
+    def start_from(self):
+        """Fetch data starting from position
+        
+        :return: 
+        """
+        return self._start_from
+
+    @start_from.setter
+    def start_from(self, value):
+        if not self.partial:
+            raise RuntimeError('Not supported by this atom')
+        self._start_from = int(value)
 
     def __repr__(self):
         res = [self.name.decode()]
         if self.allow_part and self.part:
             res.extend(['[', str(self.part), ']'])
         if self.partial and self._size:
-            res.extend(['<', str(self._size), '>'])
+            res.extend(['<', str(self._start_from), '.', str(self._size),
+                        '>'])
         return ''.join(res)
 
     @staticmethod
