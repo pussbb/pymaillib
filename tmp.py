@@ -3,7 +3,7 @@ from pymaillib.imap.parsers import ResponseTokenizer
 
 
 s = b'NAMESPACE (("" "/")) (("Other Users/" "/")) (("Public Folders/" "/"))'
-nm = Namespaces.parse(list(ResponseTokenizer(s, []))[1:])
+nm = Namespaces.build(list(ResponseTokenizer(s, []))[1:])
 print(nm)
 
 raise SystemExit

@@ -108,13 +108,13 @@ class Imap(BaseTestCase):
 
         for line in lines:
             raw, path, name = line
-            folder = ImapFolder.parse(raw)
+            folder = ImapFolder.build(raw)
             self.assertEqual(folder.name, name)
             self.assertEqual(folder.delimiter, path)
             self.assertIsNotNone(folder.direct_ref)
 
         with self.assertRaises(ImapRuntimeError) as exp:
-            ImapFolder.parse(b'  "/" "Other Users"')
+            ImapFolder.build(b'  "/" "Other Users"')
 
         self.assertIn('not enough values to unpack', str(exp.exception))
 

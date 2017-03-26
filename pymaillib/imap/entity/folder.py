@@ -173,7 +173,7 @@ class ImapFolder(ImapEntity):
         }
 
     @staticmethod
-    def parse(data: bytes) -> object:
+    def build(data: bytes) -> object:
         """Construct from raw string valid ImapFolder object
 
         :param data:

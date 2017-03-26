@@ -44,4 +44,4 @@ class ImapFolderListCommand(ImapBaseCommand):
         typ, data = imap_obj.list(self.__directory, self.__pattern)
         self.check_response(typ, data)
         for line in filter(None, data):
-            yield ImapFolder.parse(line)
+            yield ImapFolder.build(line)

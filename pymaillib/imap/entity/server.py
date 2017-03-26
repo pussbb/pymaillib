@@ -44,7 +44,7 @@ class ImapNamespace(SlotBasedImapEntity):
     __slots__ = {'name', 'separator'}
 
     @staticmethod
-    def parse(data):
+    def build(data):
         raise NotImplementedError()
 
 
@@ -52,7 +52,7 @@ class Namespaces(SlotBasedImapEntity):
     __slots__ = ('private', 'other_users', 'public_folders')
 
     @staticmethod
-    def parse(data):
+    def build(data):
         private, other_users, public_folders = data
 
         def to_namespace_list(items):

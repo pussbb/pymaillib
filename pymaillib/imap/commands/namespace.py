@@ -38,4 +38,4 @@ class Namespace(ImapBaseCommand):
         """
         typ, data = imap_obj.namespace()
         self.check_response(typ, data)
-        return Namespaces.parse(list(ResponseTokenizer(data[0], [])))
+        return Namespaces.build(list(ResponseTokenizer(data[0], [])))

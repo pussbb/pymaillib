@@ -18,7 +18,7 @@ class ImapEntity(object):
     __slots__ = ()
 
     @staticmethod
-    def parse(data):
+    def build(data):
         """Abstract
 
         :param data:
@@ -41,6 +41,10 @@ class SlotBasedImapEntity(ImapEntity):
     """NamedTuple analog maybe remove it in the future
 
     """
+
+    @staticmethod
+    def build(data):
+        super().build(data)
 
     __slots__ = ()
 
