@@ -15,7 +15,7 @@ from .entity.email_message import ImapEmailMessage
 from .fetch_query_builder import FetchQueryBuilder
 from .exceptions import ImapObjectNotFound
 from ..user import UserCredentials
-from ._lockable import LockedImapObject
+from ._lockable import LockableImapObject
 from .commands.folder import *
 from .commands.unselect import ImapUnSelectFolderCommand
 from .commands.fetch import ImapFetchCommand
@@ -26,7 +26,7 @@ from .commands.login import ImapLoginCommand
 from .entity.folder import ImapFolder
 
 
-class ImapClient(LockedImapObject):
+class ImapClient(LockableImapObject):
     """Helper class to work with IMAP
 
     """

@@ -11,7 +11,7 @@ from pymaillib.mailbox import UserMailbox
 from pymaillib.imap.fetch_query_builder import FetchQueryBuilder
 from pymaillib.settings import Config
 
-imaplib.Debug = 0
+imaplib.Debug = 4
 
 query = FetchQueryBuilder.fast(sequence=1)
 query.fetch_envelope()

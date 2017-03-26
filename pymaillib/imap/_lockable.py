@@ -9,7 +9,7 @@
 """
 import imaplib
 import warnings
-from threading import Lock, current_thread
+from threading import RLock, current_thread
 from datetime import datetime
 from traceback import print_exception
 from typing import Any
@@ -27,7 +27,7 @@ class LockableObject(object):
     def __init__(self, obj: object):
         assert obj, RuntimeError('Object cannot be null')
         self.__obj = obj
-        self.__lock = Lock()
+        self.__lock = RLock()
 
     def __enter__(self):
         self.__lock.acquire()
@@ -48,7 +48,7 @@ class LockableObject(object):
         return False
 
 
-class LockedImapObject(LockableObject):
+class LockableImapObject(LockableObject):
     """Implements functionality which gives ability work with IMAP in context
     and disable executes any IMAP commands outside context. Callers must use
     ``` with self as client: ``` statement to work with IMAP

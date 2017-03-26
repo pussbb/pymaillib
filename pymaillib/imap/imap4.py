@@ -10,7 +10,22 @@
 import imaplib
 import socket
 
+import collections
+
+import time
+
 from typing import Any
+
+
+def _profile(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        try:
+            return func(*args, **kwargs)
+        finally:
+            print('Function "{}" done in {:f}.'.format(func, time.time() - start),
+                  flush=True)
+    return wrapper
 
 
 class IMAP4(imaplib.IMAP4):
@@ -21,6 +36,12 @@ class IMAP4(imaplib.IMAP4):
 
     def _create_socket(self):
         return socket.create_connection((self.host, self.port), self._timeout)
+
+    def __getattribute__(self, item):
+        item = super().__getattribute__(item)
+        if imaplib.Debug > 5 and isinstance(item, collections.Callable):
+                return _profile(item)
+        return item
 
 
 class IMAP4_SSL(imaplib.IMAP4_SSL):
