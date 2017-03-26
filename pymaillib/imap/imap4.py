@@ -34,5 +34,3 @@ class IMAP4_SSL(imaplib.IMAP4_SSL):
         sock = IMAP4._create_socket(self)
         return self.ssl_context.wrap_socket(sock,
                                             server_hostname=self.host)
-
-
