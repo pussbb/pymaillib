@@ -4,7 +4,6 @@
 """
 import imaplib
 import pprint
-import os
 
 from pymaillib.imap.entity.folder import ImapFolder
 from pymaillib.mailbox import UserMailbox

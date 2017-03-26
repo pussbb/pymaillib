@@ -134,7 +134,7 @@ class LockableImapObject(LockableObject):
 
         :return:
         """
-        if not self.__opened:
+        if not getattr(self, '__opened', False):
             return
         with self as client:
             if client.__imap_obj:

@@ -24,6 +24,12 @@ class ImapClientAbort(ImapClientException):
     pass
 
 
+class ImapByeByeException(ImapClientException):
+    """Common exception when server abort some operations
+
+    """
+    pass
+
 class ImapClientError(ImapClientException):
     """Common exception for an error.
 

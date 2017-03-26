@@ -16,6 +16,13 @@ from datetime import datetime
 
 from typing import Any
 
+from .exceptions.base import ImapClientError, ImapClientAbort, \
+    ImapClientReadOnlyError, ImapByeByeException, ImapRuntimeError
+
+imaplib.IMAP4.error = ImapClientError
+imaplib.IMAP4.abort = ImapClientAbort
+imaplib.IMAP4.readonly = ImapClientReadOnlyError
+
 
 def _profile(func):
     if func.__func__.__name__.startswith('_'):
@@ -41,6 +48,18 @@ class IMAP4(imaplib.IMAP4):
     def _create_socket(self):
         return socket.create_connection((self.host, self.port), self._timeout)
 
+    def _check_bye(self):
+        try:
+            super()._check_bye()
+        except ImapClientError as exp:
+            raise ImapByeByeException(exp)
+
+    def open(self, *args, **kwargs):
+        try:
+            super().open(*args, **kwargs)
+        except BaseException as excp:
+            raise ImapRuntimeError(excp)
+
     if __debug__:
         def __getattribute__(self, item):
             item = super().__getattribute__(item)
@@ -58,5 +77,8 @@ class IMAP4_SSL(imaplib.IMAP4_SSL):
 
     def _create_socket(self):
         sock = IMAP4._create_socket(self)
-        return self.ssl_context.wrap_socket(sock,
-                                            server_hostname=self.host)
+        try:
+            return self.ssl_context.wrap_socket(sock,
+                                                server_hostname=self.host)
+        except Exception as excp:
+            raise ImapRuntimeError(excp)
