@@ -36,11 +36,11 @@ class UserMailbox(object):
         :param password:
         :return:
         """
+        self.__imap_store = None
         assert username, 'Username cannot be empty'
         assert password, 'Username cannot be empty'
         self.__auth_data = UserCredentials(username, password)
         self.__config = config
-        self.__imap_store = None
 
     @property
     def auth_data(self) -> UserCredentials:
@@ -99,7 +99,7 @@ class UserMailbox(object):
 
         :return:
         """
-        if not self.__imap_store:
+        if not hasattr(self, '__imap_store'):
             return
         self.__imap_store.close()
         self.__imap_store = None

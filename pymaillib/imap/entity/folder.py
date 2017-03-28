@@ -201,9 +201,9 @@ class ImapFolder(ImapEntity):
         :param name:
         :return:
         """
-        name = imap4_utf7_encode(name).replace(b'"', b'\\"')
+        name = imap4_utf7_encode(name)
         if IMAP4_FOLDER_SPECIAL_CHARS.findall(name):
-            return b'"' + name + b'"'
+            return b'"' + name.replace(b'"', b'\"') + b'"'
         return name
 
     @staticmethod

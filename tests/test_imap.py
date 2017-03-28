@@ -3,6 +3,7 @@
     :copyright: (c) 2017 WTFPL.
     :license: WTFPL, see LICENSE for more details.
 """
+import imaplib
 
 from pymaillib.imap.client import ImapClient
 from pymaillib.imap.commands import ImapBaseCommand
@@ -12,7 +13,6 @@ from pymaillib.imap.exceptions.base import ImapIllegalStateException, \
 from pymaillib.imap.exceptions.rfc5530 import ImapAlreadyExists
 from pymaillib.imap.fetch_query_builder import FetchQueryBuilder
 from pymaillib.user import UserCredentials
-from pymaillib.imap import imaplib
 from tests.base import BaseTestCase
 
 imaplib.Debug = 0
@@ -41,7 +41,9 @@ class Imap(BaseTestCase):
 
     def test_imap_context(self):
         with self.assertRaises(ImapIllegalStateException):
-            self.imap.folders()
+            with self.imap as client:
+                client.close()
+                client.folders()
 
     def test_folder_list(self):
         with self.imap as client:
@@ -49,11 +51,6 @@ class Imap(BaseTestCase):
             self.assertGreater(len(folders), 0)
             for folder in client.folders():
                 self.assertIsNotNone(folder.direct_ref)
-
-        with self.imap as client:
-            for folder in client.folders(True):
-                if folder.selectable:
-                    self.assertIn('EXISTS', folder.stats)
 
     def test_imap_folder_by_name(self):
         with self.assertRaises(ImapObjectNotFound):

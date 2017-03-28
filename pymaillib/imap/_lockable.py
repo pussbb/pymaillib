@@ -61,8 +61,9 @@ class LockableImapObject(LockableObject):
         :param obj: imaplib.IMAP4 object
         :return:
         """
-        self.__imap_obj = None
         self.__opened = True
+        self.__imap_obj = None
+
         self.capabilities = set()
         self.last_untagged_responses = {}
         super().__init__(obj)
@@ -134,12 +135,12 @@ class LockableImapObject(LockableObject):
 
         :return:
         """
-        if not getattr(self, '__opened', False):
+        if not self.__opened:
             return
+        self.__opened = False
         with self as client:
             if client.__imap_obj:
                 client.__imap_obj.shutdown()
-        self.__opened = False
 
     def __del__(self):
         self.close()
