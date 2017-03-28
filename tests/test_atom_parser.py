@@ -206,8 +206,6 @@ class AtomParserTest(unittest.TestCase):
         self.assertIsInstance(msg['UID'], int)
         self.assertEqual(msg['UID'], 387)
 
-        self.assertEqual(len(msg['BODY'][0]), 812)
-
     def test_rfc822_in_side_bodystructure(self):
         lines = [
             b'25 (FLAGS (\\Seen \\X-Has-Attach) BODYSTRUCTURE ('
@@ -327,7 +325,7 @@ class AtomParserTest(unittest.TestCase):
         for item in items:
             self.assertIn(item['BODY']['88'], [b'', None])
 
-    def test_enveloper_more_literal(self):
+    def test_envelope_more_literal(self):
         lines = [
             (
             b'1 (INTERNALDATE "29-Dec-2015 04:08:16 -0500" FLAGS (\\Seen) '
@@ -349,11 +347,12 @@ class AtomParserTest(unittest.TestCase):
             (b' NIL "ob" "xxx.com")) (({14}',  b'Xxxxxx Xxxxxxx'),
             (b' NIL "ob" "xxxx.com")) ((NIL NIL "xxxx" "MISSING_DOMAIN")) NIL '
              b'NIL NIL "<DM2PR04MB73356088E83B2FDF569C0B3B9FB0@DM2PR04MB733.'
-             b'namprd04.prod.xxxx.com>") BODY[] {14}', b'Xxxxxx Xxxxxxx'),
+             b'namprd04.prod.xxxx.com>") BODY[1] {14}', b'Xxxxxx Xxxxxxx'),
             b')',
         ]
         items = self.parse_items(lines)
         self.assertEqual(len(items), 2)
+        print(items)
         self.assertIsNotNone(items[1]['BODY'])
 
     def test_handle_custom_atom(self):
@@ -393,8 +392,8 @@ class AtomParserTest(unittest.TestCase):
         self.assertIsNotNone(msg['ENVELOPE'])
         self.assertIsInstance(msg['ENVELOPE'], Envelope)
         self.assertIsNotNone(msg['BODY'])
-        self.assertIn('HEADER.FIELDS (SUBJECT)', msg['BODY'])
-        self.assertIsNotNone(msg['BODY']['HEADER.FIELDS (SUBJECT)'])
+        self.assertIn('HEADER', msg)
+        self.assertIsNotNone(msg['HEADER'])
 
     def test_user_name_integer_in_bodystruct(self):
         lines = [

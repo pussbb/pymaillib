@@ -123,6 +123,9 @@ class ImapFetchedItem(dict, ImapEntity):
         for item, value in self.items():
             if 'HEADER' == item:
                 yield item, dict(value.headers())
+            elif 'BODY' == item:
+                yield item, {key: data.as_bytes()
+                             for key, data in value.items()}
             else:
                 yield item, value
 
