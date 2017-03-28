@@ -4,17 +4,24 @@
 """
 import imaplib
 import pprint
+from email import policy
+from email.parser import BytesHeaderParser
 
 from pymaillib.imap.entity.folder import ImapFolder
 from pymaillib.mailbox import UserMailbox
 from pymaillib.imap.fetch_query_builder import FetchQueryBuilder
 from pymaillib.settings import Config
 
-imaplib.Debug = 6
+imaplib.Debug = 1
+
+
 
 query = FetchQueryBuilder.fast(sequence=1)
 query.fetch_envelope()
 query.fetch_body_peek()
+#query.fetch_rfc822_header()
+#query.fetch_header_item('Subject')
+#query.fetch_header_item('Message-ID')
 print(query)
 #raise SystemExit
 
@@ -37,7 +44,10 @@ with mailbox.imap() as client:
         print(folder)
 
     folder = ImapFolder(b'Inbox', b'/', {})
-    pprint.pprint(len(list(client.messages(folder, query))))
+    msg = list(client.messages(folder, query))[-1]
+    pprint.pprint(dict(msg.dump()))
+    pprint.pprint(msg.rfc822_size)
+    pprint.pprint(msg.header_item('Message-ID'))
     #for msg in client.messages(folder, query):
     #    print(msg.uid, msg.sequence_id)
         #print(msg.envelope.subject)

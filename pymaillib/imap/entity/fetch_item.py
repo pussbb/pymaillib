@@ -28,7 +28,7 @@ class FetchItem(object):
 
     def __init__(self):
         self._size = 0
-        self._part = ''
+        self._part = None
         self._start_from = 0
 
     @property
@@ -86,7 +86,7 @@ class FetchItem(object):
 
     def __repr__(self):
         res = [self.name.decode()]
-        if self.allow_part and self.part:
+        if self.allow_part and self.part is not None:
             res.extend(['[', str(self.part), ']'])
         if self.partial and self._size:
             res.extend(['<', str(self._start_from), '.', str(self._size),

@@ -10,7 +10,6 @@
 """
 from typing import Any, List, Tuple
 
-from .utils import is_iterable
 from .exceptions import ImapRuntimeError
 from .entity.fetch_item import FetchItem, FETCH_ITEMS
 
@@ -187,7 +186,7 @@ class FetchQueryBuilder(object):
         self.__header_items.add(item)
         return self
 
-    def __body_item(self, peek: bool, part: str=None, size: int = 0,
+    def __body_item(self, peek: bool, part: str='', size: int = 0,
                     start_from: int = 0) -> FetchItem:
         """Create BODY section
         
@@ -219,7 +218,7 @@ class FetchQueryBuilder(object):
         self.add(self.__body_item(self.__peek, part, size, start_from))
         return self
 
-    def fetch_body_peek(self, part: str=None, size: int =0, start_from: int=0) \
+    def fetch_body_peek(self, part: str='', size: int =0, start_from: int=0) \
             -> 'FetchQueryBuilder':
         """Add to a fetch command BODY.PEEK ATOM
 

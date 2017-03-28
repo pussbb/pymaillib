@@ -11,7 +11,6 @@ from typing import Iterable
 
 from . imap4 import IMAP4_SSL, IMAP4
 from .commands.namespace import Namespace
-from .entity.email_message import ImapEmailMessage
 from .fetch_query_builder import FetchQueryBuilder
 from .exceptions import ImapObjectNotFound
 from ..user import UserCredentials
@@ -137,17 +136,12 @@ class ImapClient(LockableImapObject):
         return IMAP4_SSL(host=self.host, port=self.port, keyfile=self.keyfile,
                          certfile=self.certfile, timeout=self.timeout)
 
-    def folders(self, with_stats=False) -> Iterable[ImapFolder]:
+    def folders(self) -> Iterable[ImapFolder]:
         """Get folder list from IMAP server. Executes LIST command at IMAP
         server.
-
-        :param with_stats: boolean indicates get details for a folder or not
         :return: list with ImapFolders
         """
-        res = self._simple_command(ImapFolderListCommand())
-        if with_stats:
-            res = [self.update_folder_info(folder) for folder in res]
-        return res
+        yield from self._simple_command(ImapFolderListCommand())
 
     def folder_stats(self, folder: ImapFolder) -> dict:
         """Get additional information for an folder which is not available
@@ -156,11 +150,7 @@ class ImapClient(LockableImapObject):
         :param folder: ImapFolder
         :return: dict
         """
-
-        resp = self._simple_command(ImapFolderDetailsCommand(folder))
-        if self.supports('unselect'):
-            self.un_select_folder()
-        return resp
+        return self._simple_command(ImapFolderDetailsCommand(folder))
 
     def un_select_folder(self):
         """Executes UNSELECT folder
@@ -253,8 +243,7 @@ class ImapClient(LockableImapObject):
         """
         return self._simple_command(ImapSelectFolderCommand(folder))
 
-    def messages(self, folder: ImapFolder, query: FetchQueryBuilder,
-                 stay=True):
+    def messages(self, folder: ImapFolder, query: FetchQueryBuilder):
         """Retries messages from a folder
 
         :param folder: ImapFolder object
@@ -262,10 +251,7 @@ class ImapClient(LockableImapObject):
         :param stay: True or False unselect folder or not
         """
         self.select_folder(folder)
-        res = self._simple_command(ImapFetchCommand(query))
-        if not stay and self.supports('unselect'):
-            self.un_select_folder()
-        yield from [ImapEmailMessage.from_dict(item) for item in res]
+        yield from self._simple_command(ImapFetchCommand(query))
 
     def store(self):
         """To avoid all those calls to STORE trying calling it with multiple
