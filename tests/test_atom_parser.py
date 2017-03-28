@@ -485,11 +485,10 @@ class AtomParserTest(unittest.TestCase):
         for line in lines:
             self.assertEqual(list(ResponseTokenizer(line[0], [])), line[1])
 
-
     def test_atom_special_ampersand(self):
         lines = [
             b'(\\X-DirectRef=000a9d8db93e5826 \\X-ModDate=20151112134408'
             b' \\X-Total-Msgs=0 \\X-Unseen-Msgs=0) "/" &BD8EMARABD8EMA'
             b'-_&BD8EMA-777&BEAEPwQwBEA-_&BDIEMAQ,-'
         ]
-        print(list(ResponseTokenizer(lines[0], [])))
+        self.assertIsNotNone(list(ResponseTokenizer(lines[0], [])))
