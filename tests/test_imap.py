@@ -125,7 +125,6 @@ class Imap(BaseTestCase):
             )
 
         with self.assertRaises(ImapClientError):
-
             imap_cmd.check_response(
                     'NO',
                     ['NO FETCH invalid message set',
@@ -134,5 +133,6 @@ class Imap(BaseTestCase):
 
     def test_fetch(self):
         with self.imap as client:
-            client.messages(client.folder_by_name('INBOX'),
-                            FetchQueryBuilder.all(1))
+            msgs = client.messages(client.folder_by_name('INBOX'),
+                                   FetchQueryBuilder.all(1))
+            self.assertTrue(msgs)

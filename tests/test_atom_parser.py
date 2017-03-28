@@ -443,7 +443,7 @@ class AtomParserTest(unittest.TestCase):
         line = list(ResponseTokenizer(lines[0], []))
         self.assertIsNotNone(line)
         self.assertEquals(len(line), 1)
-        self.assertNotEquals(list_to_dict(line[0]), [])
+        self.assertNotEqual(list_to_dict(line[0]), [])
 
     def test_dolar_sign(self):
 
@@ -463,7 +463,7 @@ class AtomParserTest(unittest.TestCase):
             b'-0400")'
         ]
         items = self.parse_items(lines)
-        self.assertEquals(items[0]['FLAGS'],
+        self.assertEqual(items[0]['FLAGS'],
                           [b'\\Seen', b'$Forwarded', b'\\X-Forwarded'])
 
     def test_response_tokenizer(self):
