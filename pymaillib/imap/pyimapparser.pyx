@@ -36,6 +36,7 @@ cdef Py_UCS4 END_OF_LINE = '\0'
 cdef Py_UCS4 LESS_SIGN_LINE = '<'
 cdef Py_UCS4 ESCAPEDSLASH = '\\'
 cdef Py_UCS4 DOLLAR = '$'
+cdef Py_UCS4 AMPERSAND = '&'
 
 
 cdef class ResponseTokenizer:
@@ -110,7 +111,7 @@ cdef class ResponseTokenizer:
             preincrement(self.pos)
 
     cdef bool is_atom(self, const char & char_):
-        return isalnum(char_) or char_ == ESCAPEDSLASH or char_ == DOLLAR
+        return isalnum(char_) or char_ == ESCAPEDSLASH or char_ == DOLLAR or char_ == AMPERSAND
 
     cdef string read_until(self, const char & delim, bool append_delim=False):
         cdef string res

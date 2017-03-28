@@ -13,11 +13,12 @@ from pymaillib.settings import Config
 imaplib.Debug = 0
 
 
-query = FetchQueryBuilder.fast(sequence=1)
+query = FetchQueryBuilder.fast('1:*')
 query.fetch_envelope()
-query.fetch_body_peek(3)
+#query.fetch_body_peek(3)
 query.fetch_body_structure()
-query.fetch_rfc822()
+query.fetch_rfc822_size()
+
 #query.fetch_header_item('Subject')
 #query.fetch_header_item('Message-ID')
 print(query)

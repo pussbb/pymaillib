@@ -7,7 +7,7 @@ import unittest
 
 import datetime
 
-from imap.entity.email_message import ImapFetchedItem
+from pymaillib.imap.entity.email_message import ImapFetchedItem
 from pymaillib.imap.entity.body_structure import BodyStructure
 from pymaillib.imap.entity.envelope import Envelope, AddressList
 from pymaillib.imap.parsers import ResponseTokenizer, tokenize_atom_response
@@ -323,7 +323,7 @@ class AtomParserTest(unittest.TestCase):
         items = self.parse_items(lines)
         self.assertEqual(len(items), 3)
         for item in items:
-            self.assertIn(item['BODY']['88'], [b'', None])
+            self.assertIn(item['BODY'][88], [b'', None])
 
     def test_envelope_more_literal(self):
         lines = [
@@ -484,3 +484,12 @@ class AtomParserTest(unittest.TestCase):
 
         for line in lines:
             self.assertEqual(list(ResponseTokenizer(line[0], [])), line[1])
+
+
+    def test_atom_special_ampersand(self):
+        lines = [
+            b'(\\X-DirectRef=000a9d8db93e5826 \\X-ModDate=20151112134408'
+            b' \\X-Total-Msgs=0 \\X-Unseen-Msgs=0) "/" &BD8EMARABD8EMA'
+            b'-_&BD8EMA-777&BEAEPwQwBEA-_&BDIEMAQ,-'
+        ]
+        print(list(ResponseTokenizer(lines[0], [])))

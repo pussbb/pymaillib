@@ -12,7 +12,7 @@ from email.message import EmailMessage as ImapLibEmailMessage
 from email.base64mime import body_decode
 from typing import Any
 
-from ..utils import parse_email_headers, parse_email
+
 from . import ImapEntity
 
 
@@ -151,3 +151,4 @@ class ImapFetchedItem(dict, ImapEntity):
     def __repr__(self):
         return "{}".format(self.dump())
 
+from ..utils import parse_email_headers, parse_email
