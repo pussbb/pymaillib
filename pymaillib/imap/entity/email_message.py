@@ -7,13 +7,12 @@
     :copyright: (c) 2017 WTFPL.
     :license: WTFPL, see LICENSE for more details.
 """
-from email import policy
-from email.errors import InvalidBase64CharactersDefect, \
-    MultipartInvariantViolationDefect
+from email.errors import InvalidBase64CharactersDefect
 from email.message import EmailMessage as ImapLibEmailMessage
-from email.parser import BytesParser, BytesHeaderParser
 from email.base64mime import body_decode
+from typing import Any
 
+from ..utils import parse_email_headers, parse_email
 from . import ImapEntity
 
 
@@ -21,6 +20,24 @@ class EmailMessage(ImapLibEmailMessage, ImapEntity):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.__uid = 0
+        self.__sequence = 0
+
+    @property
+    def uid(self):
+        return self.__uid
+
+    @uid.setter
+    def uid(self, value):
+        self.__uid = value
+
+    @property
+    def sequence(self):
+        return self.__sequence
+
+    @sequence.setter
+    def sequence(self, value):
+        self.__sequence = value
 
     def headers(self):
         return self._headers
@@ -45,7 +62,8 @@ class EmailMessage(ImapLibEmailMessage, ImapEntity):
         """
         # splitlines does not work and I don't know why . so lets just manually
         # split string by '\n' delimiter
-        return b'\n'.join([body_decode(line) for line in self.__message.get_payload()])
+        return b'\n'.join([body_decode(line)
+                           for line in self.__message.get_payload()])
 
     def __repr__(self):
         return self.as_string()
@@ -66,7 +84,8 @@ class ImapFetchedItem(dict, ImapEntity):
         if isinstance(value, dict):
             for item in list(value.keys()):
                 if isinstance(item, int):
-                    value[item] = self.__parse_email(value[item])
+                    if item == 0:
+                        value[item] = parse_email(value[item])
                     continue
                 if 'BODYSTRUCTURE' in value:
                     super().__setitem__('BODYSTRUCTURE',
@@ -80,23 +99,15 @@ class ImapFetchedItem(dict, ImapEntity):
         elif 'RFC822.HEADER' == key:
             self.__proccess_header(value)
         elif 'RFC822' == key:
-            super().__setitem__(key, self.__parse_email(value))
+            super().__setitem__(key, parse_email(value))
         else:
             super().__setitem__(key, value)
 
-    def __parse_email(self, data):
-        return BytesParser(_class=EmailMessage, policy=policy.strict)\
-            .parsebytes(data)
-
-    def __parse_headers(self, data):
-        return BytesHeaderParser(_class=EmailMessage, policy=policy.default)\
-            .parsebytes(data)
-
     def __proccess_header(self, data):
         if 'HEADER' not in self:
-            super().__setitem__('HEADER', self.__parse_headers(data))
-            return self
-        for key, name in self.__parse_headers(data).headers():
+            super().__setitem__('HEADER', parse_email_headers(data))
+            return
+        for key, name in parse_email_headers(data).headers():
             try:
                 self['HEADER'].replace_header(key, name)
             except KeyError as _:
@@ -117,17 +128,25 @@ class ImapFetchedItem(dict, ImapEntity):
 
     @property
     def email_message(self):
-        return self.get('RFC822', self.get('BODY', {0: None})[0])
+        return self.get('RFC822', self.get_fetched_part(0))
+
+    def get_fetched_part(self, num: Any):
+        return self.get('BODY', {}).get(num)
 
     def dump(self):
         for item, value in self.items():
             if 'HEADER' == item:
                 yield item, dict(value.headers())
             elif 'BODY' == item:
-                yield item, {key: data.as_bytes()
-                             for key, data in value.items()}
+                yield item, dict(self.__walk_fetched_body_parts(value))
             else:
                 yield item, value
+
+    def __walk_fetched_body_parts(self, data):
+        for key, value in data.items():
+            if isinstance(value, EmailMessage):
+                yield key, value.as_bytes()
+            yield key, value
 
     def __repr__(self):
         return "{}".format(self.dump())

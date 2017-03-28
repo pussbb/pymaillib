@@ -4,22 +4,20 @@
 """
 import imaplib
 import pprint
-from email import policy
-from email.parser import BytesHeaderParser
 
 from pymaillib.imap.entity.folder import ImapFolder
 from pymaillib.mailbox import UserMailbox
 from pymaillib.imap.fetch_query_builder import FetchQueryBuilder
 from pymaillib.settings import Config
 
-imaplib.Debug = 1
-
+imaplib.Debug = 0
 
 
 query = FetchQueryBuilder.fast(sequence=1)
 query.fetch_envelope()
-query.fetch_body_peek()
-#query.fetch_rfc822_header()
+query.fetch_body_peek(3)
+query.fetch_body_structure()
+query.fetch_rfc822()
 #query.fetch_header_item('Subject')
 #query.fetch_header_item('Message-ID')
 print(query)

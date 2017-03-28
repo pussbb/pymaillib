@@ -276,6 +276,8 @@ class BodyFetchItem(FetchItem):
         part = atom_data.get('part').decode()
         if not part:
             part = 0
+        if part.isdigit():
+            part = int(part)
         return {part: value}
 
 

@@ -10,11 +10,12 @@
 """
 
 import operator
+from email import policy
 from email.header import decode_header as _email_decode_header
 import collections
+from email.parser import BytesParser, BytesHeaderParser
 
 import dateutil.parser
-
 
 byte2int = operator.itemgetter(0)
 
@@ -134,3 +135,24 @@ def parse_datetime(value):
         return None
     return dateutil.parser.parse(value)
 
+
+def parse_email(data: bytes) -> 'EmailMessage':
+    """
+    
+    :param data: bytes
+    :return: EmailMessage
+    """
+    return BytesParser(_class=EmailMessage, policy=policy.strict)\
+        .parsebytes(data)
+
+
+def parse_email_headers(data: bytes) -> 'EmailMessage':
+    """
+    
+    :param data: bytes
+    :return: EmailMessage 
+    """
+    return BytesHeaderParser(_class=EmailMessage, policy=policy.default)\
+        .parsebytes(data)
+# import recursion
+from .entity.email_message import EmailMessage
