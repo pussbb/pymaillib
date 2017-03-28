@@ -352,7 +352,6 @@ class AtomParserTest(unittest.TestCase):
         ]
         items = self.parse_items(lines)
         self.assertEqual(len(items), 2)
-        print(items)
         self.assertIsNotNone(items[1]['BODY'])
 
     def test_handle_custom_atom(self):
