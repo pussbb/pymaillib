@@ -74,7 +74,7 @@ class ImapClient(LockableImapObject):
     @property
     def secure(self):
         """Flag which describes what type of connection was used - simple
-        socket connection or secured sockect connection (SSL)
+        socket connection or secured socket connection (SSL)
 
         :return: boolean
         """

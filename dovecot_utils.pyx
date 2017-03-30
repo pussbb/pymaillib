@@ -60,11 +60,8 @@ cdef extern from "iso8601-date.h":
 def imap4_utf7_encode(data):
     """Encode a folder name using IMAP modified UTF-7 encoding.
 
-    Input is unicode; output is bytes (Python 3) or str (Python 2). If
-    non-unicode input is provided, the input is returned unchanged.
     """
-    if not isinstance(data, str):
-        return data
+
     cdef string_t *dest = t_str_new(255)
     try:
         if imap_utf8_to_utf7(data.encode(), dest) != 0:
@@ -76,14 +73,7 @@ def imap4_utf7_encode(data):
 def imap4_utf7_decode(bytes data):
     """Decode a folder name from IMAP modified UTF-7 encoding to unicode.
 
-    Input is bytes (Python 3) or str (Python 2); output is always
-    unicode. If non-bytes/str input is provided, the input is returned
-    unchanged.
     """
-
-    if not isinstance(data, bytes):
-        return bytearray(data, 'utf-8')
-
     cdef string_t *dest = t_str_new(255)
     try:
         if imap_utf7_to_utf8(data, dest) != 0:

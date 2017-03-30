@@ -32,12 +32,7 @@ PRINTABLE = set(range(0x20, 0x26)) | set(range(0x27, 0x7f))
 def imap4_utf7_encode(s):
     """Encode a folder name using IMAP modified UTF-7 encoding.
 
-    Input is unicode; output is bytes (Python 3) or str (Python 2). If
-    non-unicode input is provided, the input is returned unchanged.
     """
-    if not isinstance(s, str):
-        return s
-
     r = []
     _in = []
 
@@ -67,14 +62,7 @@ DASH_ORD = byte2int(b'-')
 
 def imap4_utf7_decode(s):
     """Decode a folder name from IMAP modified UTF-7 encoding to unicode.
-
-    Input is bytes (Python 3) or str (Python 2); output is always
-    unicode. If non-bytes/str input is provided, the input is returned
-    unchanged.
     """
-
-    if not isinstance(s, bytes):
-        return bytearray(s, 'utf-8')
 
     r = []
     _in = bytearray()

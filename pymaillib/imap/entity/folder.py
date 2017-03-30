@@ -190,8 +190,6 @@ class ImapFolder(ImapEntity):
             attr_name, _, value = attr.partition(b'=')
             attributes[attr_name] = value
 
-        if not isinstance(name, int):
-            name = imap4_utf7_decode(name)
         return ImapFolder(name, imap4_utf7_decode(path), attributes)
 
     @staticmethod
