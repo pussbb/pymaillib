@@ -44,7 +44,7 @@ class AtomParserTest(unittest.TestCase):
             b'@MHS>")))',
         ]
         items = self.parse_items(lines)
-        self.assertEqual(len(items), 2)
+        self.assertEquals(len(items), 2)
         for msg in items:
             self.assertIn(msg['ENVELOPE'].subject, (None, ''))
 

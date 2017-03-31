@@ -9,7 +9,7 @@
 """
 import imaplib
 import warnings
-from threading import RLock, current_thread
+from threading import current_thread, Lock
 from datetime import datetime
 from traceback import print_exception
 from typing import Any
@@ -19,36 +19,7 @@ from .commands import ImapBaseCommand
 from .exceptions import ImapUnsupportedCommand, ImapIllegalStateException
 
 
-class LockableObject(object):
-    """Generic class to implement context manager with locks
-
-    """
-
-    def __init__(self, obj: object):
-        assert obj, RuntimeError('Object cannot be null')
-        self.__obj = obj
-        self.__lock = RLock()
-
-    def __enter__(self):
-        self.__lock.acquire()
-        if __debug__:
-            print('Lock acquired ', current_thread().name,
-                  datetime.now().isoformat())
-        return self.__obj
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        # TODO log exc_type, exc_val, exc_tb
-        if exc_tb:
-            print_exception(exc_type, exc_val, exc_tb)
-
-        self.__lock.release()
-        if __debug__:
-            print('Lock released ', current_thread().name,
-                  datetime.now().isoformat())
-        return False
-
-
-class LockableImapObject(LockableObject):
+class LockableImapObject(object):
     """Implements functionality which gives ability work with IMAP in context
     and disable executes any IMAP commands outside context. Callers must use
     ``` with self as client: ``` statement to work with IMAP
@@ -62,12 +33,12 @@ class LockableImapObject(LockableObject):
         :return:
         """
         self.__opened = True
-        self.__imap_obj = None
-
+        self.__lock = Lock()
         self.capabilities = set()
         self.last_untagged_responses = {}
-        super().__init__(obj)
-        self._update_capabilities(obj.capabilities)
+        self.__imap_obj = obj
+        self._count = 0
+        self._update_capabilities(self.__imap_obj.capabilities)
 
     def _update_capabilities(self, capabilities: list):
         """Updates list of available command at IMAP server
@@ -85,12 +56,27 @@ class LockableImapObject(LockableObject):
             self.capabilities.add('X-SCALIX-ID')
 
     def __enter__(self):
-        self.__imap_obj = super().__enter__()
+        if not self.__lock.locked():
+            self.__lock.acquire()
+
+        self._count += 1
+
+        if __debug__:
+            print('Lock acquired ', current_thread().name,
+                  datetime.now().isoformat())
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.__imap_obj = None
-        return super().__exit__(exc_type, exc_val, exc_tb)
+        if exc_tb:
+            print_exception(exc_type, exc_val, exc_tb)
+
+        self._count -= 1
+        if not self._count:
+            self.__lock.release()
+        if __debug__:
+            print('Lock released ', current_thread().name,
+                  datetime.now().isoformat())
+        return False
 
     def _simple_command(self, command: ImapBaseCommand) -> Any:
         """Generic function to execute Imap commands
@@ -105,13 +91,12 @@ class LockableImapObject(LockableObject):
         :param command: object instanceof ImapBaseCommand
         :return:
         """
+
+        if not self.__lock.locked():
+            raise ImapIllegalStateException('Working outside context')
         if not self.supports(command.name):
             raise ImapUnsupportedCommand(command)
-        if not self.__imap_obj:
-            raise ImapIllegalStateException('Working outside context')
-        if not self.__opened:
-            raise ImapIllegalStateException('Connection was closed.'
-                                            ' Please recreate.')
+
         result = command.run(self.__imap_obj)
         self.last_untagged_responses = self.__imap_obj.untagged_responses
 
@@ -138,12 +123,11 @@ class LockableImapObject(LockableObject):
         if not self.__opened:
             return
         self.__opened = False
-        with self as client:
-            if client.__imap_obj:
-                client.__imap_obj.shutdown()
+        if self.__imap_obj:
+            self.__imap_obj.shutdown()
 
-    #def __del__(self):
-    #    self.close()
+    def __del__(self):
+        self.close()
 
     @property
     def opened(self):

@@ -5,6 +5,10 @@
 import imaplib
 import pprint
 
+import time
+
+import gc
+
 from pymaillib.imap.entity.folder import ImapFolder
 from pymaillib.mailbox import UserMailbox
 from pymaillib.imap.fetch_query_builder import FetchQueryBuilder
@@ -13,7 +17,7 @@ from pymaillib.settings import Config
 imaplib.Debug = 0
 
 
-query = FetchQueryBuilder.fast('1:*')
+query = FetchQueryBuilder.fast('1')
 query.fetch_envelope()
 #query.fetch_body_peek(3)
 query.fetch_body_structure()
@@ -29,8 +33,11 @@ config = Config().from_config_file('./pymail.ini')
 
 mailbox = UserMailbox('sxadmin', '1', config)
 # time.sleep(1)
-
+#list(mailbox.imap().folders())
 with mailbox.imap() as client:
+    with client as client2:
+        print(client2.namespace())
+
 #RFC822.HEADER RFC822.TEXT   BODY[]
 
     #  BODY[] BODY.PEEK[HEADER] BODY.PEEK[1.MIME] BODY.PEEK[1] RFC822
@@ -53,3 +60,7 @@ with mailbox.imap() as client:
         #print(msg.dump())
     #pprint(list())
 
+#mailbox.close()
+print(gc.collect())
+
+time.sleep(15)
