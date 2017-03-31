@@ -142,8 +142,8 @@ class LockableImapObject(LockableObject):
             if client.__imap_obj:
                 client.__imap_obj.shutdown()
 
-    def __del__(self):
-        self.close()
+    #def __del__(self):
+    #    self.close()
 
     @property
     def opened(self):

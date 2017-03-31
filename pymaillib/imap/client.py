@@ -12,7 +12,7 @@ from typing import Iterable
 from . imap4 import IMAP4_SSL, IMAP4
 from .commands.namespace import Namespace
 from .fetch_query_builder import FetchQueryBuilder
-from .exceptions import ImapObjectNotFound
+from .exceptions.base import ImapObjectNotFound
 from ..user import UserCredentials
 from ._lockable import LockableImapObject
 from .commands.folder import *
@@ -278,15 +278,7 @@ class ImapClient(LockableImapObject):
         return self._simple_command(Namespace())
 
     def __repr__(self):
-        try:
-            opened = self.opened
-        except KeyError as _:
-            opened = False
-        return """Imap connection host: {host} port: {port} secure: {secure}
-        opened {opened}. {capabilities}""".format(
-            host=self.host,
-            port=self.port,
-            secure=self.secure,
-            opened=opened,
-            capabilities=self.__server_info
-        )
+        return """Imap connection host: {host} port: {port} secure: {secure}. 
+        {capabilities}""".format(host=self.host, port=self.port,
+                                 secure=self.secure,
+                                 capabilities=self.__server_info)

@@ -41,9 +41,7 @@ class Imap(BaseTestCase):
 
     def test_imap_context(self):
         with self.assertRaises(ImapIllegalStateException):
-            with self.imap as client:
-                client.close()
-                client.folders()
+            list(self.imap.folders())
 
     def test_folder_list(self):
         with self.imap as client:
@@ -53,9 +51,9 @@ class Imap(BaseTestCase):
                 self.assertIsNotNone(folder.direct_ref)
 
     def test_imap_folder_by_name(self):
-        with self.assertRaises(ImapObjectNotFound):
-            with self.imap as client:
-                client.folder_by_name('non existing folder')
+        with self.imap as client:
+            self.assertRaises(ImapObjectNotFound, client.folder_by_name,
+                              'non existing folder')
 
         with self.imap as client:
             self.assertIsNotNone(client.folder_by_name('INBOX'))

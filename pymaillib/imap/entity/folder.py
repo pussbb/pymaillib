@@ -190,7 +190,7 @@ class ImapFolder(ImapEntity):
             attr_name, _, value = attr.partition(b'=')
             attributes[attr_name] = value
 
-        return ImapFolder(name, imap4_utf7_decode(path), attributes)
+        return ImapFolder(imap4_utf7_decode(name), imap4_utf7_decode(path), attributes)
 
     @staticmethod
     def escape_name(name) -> str:
