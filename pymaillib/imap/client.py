@@ -310,12 +310,13 @@ class ImapClient(object):
             raise ImapRuntimeError('Folder name is empty')
         if not safe:
             name = ImapFolder.escape_name(name)
-        folders = list(
-            self._simple_command(ImapFolderListCommand(pattern=name))
-        )
+        folders = self._simple_command(ImapFolderListCommand(pattern=name))
         if not folders:
             raise ImapObjectNotFound('Folder {} not found'.format(name))
-        return folders[0]
+        try:
+            return next(folders)
+        except StopIteration as _:
+            raise ImapObjectNotFound('Folder {} not found'.format(name))
 
     def folder_exists(self, name: str) -> bool:
         """Checks if folder exists at IMAP server
@@ -351,9 +352,10 @@ class ImapClient(object):
         :param parent:
         :return: ImapFolder instance new created folder
         """
-
-        res = self._simple_command(ImapCreateFolderCommand(name, parent))
-        return self.folder_by_name(res, safe=True)
+        return self.folder_by_name(
+            self._simple_command(ImapCreateFolderCommand(name, parent)),
+            safe=True
+        )
 
     def delete_folder(self, folder: ImapFolder):
         """Delete existing folder from IMAP
