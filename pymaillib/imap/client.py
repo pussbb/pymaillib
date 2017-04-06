@@ -7,16 +7,22 @@
     :copyright: (c) 2017 WTFPL.
     :license: WTFPL, see LICENSE for more details.
 """
-from typing import Iterable
+import warnings
+from traceback import print_exception
+from threading import Lock, current_thread
 
+from datetime import datetime
+from typing import Iterable, Any
+
+from .constants import IMAP4REV1_CAPABILITY_KEYS, IMAP4_COMMANDS
 from .commands.wrapper import ImapLibWrapper
 from .entity.server import Namespaces
 from .imap4 import IMAP4_SSL, IMAP4
 from .commands.namespace import Namespace
 from .fetch_query_builder import FetchQueryBuilder
-from .exceptions.base import ImapObjectNotFound
+from .exceptions.base import ImapObjectNotFound, ImapIllegalStateException, \
+    ImapUnsupportedCommand
 from ..user import UserCredentials
-from ._lockable import LockableImapObject
 from .commands.folder import *
 from .commands.unselect import ImapUnSelectFolderCommand
 from .commands.fetch import ImapFetchCommand
@@ -27,7 +33,7 @@ from .commands.login import ImapLoginCommand
 from .entity.folder import ImapFolder
 
 
-class ImapClient(LockableImapObject):
+class ImapClient(object):
     """Helper class to work with IMAP
 
     """
@@ -40,12 +46,130 @@ class ImapClient(LockableImapObject):
         :param auth_data: UserCredentials
         :return:
         """
+        self.__opened = True
+        self.__lock = Lock()
+        self.capabilities = set()
+        self.last_untagged_responses = {}
+        self._count = 0
         self.__settings = settings
         self.__server_info = None
-        imap_obj = self.__init_imap_obj()
-        super().__init__(obj=imap_obj)
-        self._update_capabilities(ImapLoginCommand(auth_data).run(imap_obj))
-        self._update_server_info(imap_obj)
+        self.__imap_obj = self.__init_imap_obj()
+        self._update_capabilities(ImapLoginCommand(auth_data).run(
+            self.__imap_obj)
+        )
+        self._update_server_info(self.__imap_obj)
+        self._update_capabilities(self.__imap_obj.capabilities)
+
+    def __enter__(self):
+        if not self.__lock.locked():
+            self.__lock.acquire()
+
+        self._count += 1
+
+        if __debug__:
+            print('Lock acquired ', current_thread().name,
+                  datetime.now().isoformat())
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_tb:
+            print_exception(exc_type, exc_val, exc_tb)
+
+        self._count -= 1
+        if not self._count:
+            self.__lock.release()
+        if __debug__:
+            print('Lock released ', current_thread().name,
+                  datetime.now().isoformat())
+        return False
+
+    def __getattr__(self, item) -> IMAP4:
+        def wrapper(*args, **kwargs):
+            return self.imaplib(item, *args, **kwargs)
+        return wrapper
+
+    def __repr__(self):
+        return """Imap connection host: {host} port: {port} secure: {secure}. 
+        {capabilities}""".format(host=self.host, port=self.port,
+                                 secure=self.secure,
+                                 capabilities=self.__server_info)
+
+    def _simple_command(self, command: ImapBaseCommand) -> Any:
+        """Generic function to execute Imap commands
+
+        Raises:
+            - ImapUnsupportedCommand if server does not support command
+            - ImapRuntimeError if caller tries to execute command without
+                acquiring context
+            - ImapRuntimeError if connection to the server was closed and any
+                requests will fail.
+
+        :param command: object instanceof ImapBaseCommand
+        :return:
+        """
+
+        if not self.__lock.locked():
+            raise ImapIllegalStateException('Working outside context')
+        if not self.supports(command.name):
+            raise ImapUnsupportedCommand(command)
+
+        result = command.run(self.__imap_obj)
+        self.last_untagged_responses = self.__imap_obj.untagged_responses
+
+        if self.last_untagged_responses:
+            warnings.warn('Data left {}'.format(self.last_untagged_responses),
+                          RuntimeWarning)
+        return result
+
+    def supports(self, command_name: str):
+        """Checks if IMAP server support IMAP command or not. All supported
+        IMAP commands by the server in :attr:capabilities
+
+        :param command_name: IMAP command name ignore letter case
+        :return: True if IMAP command is supported be IMAP server otherwise
+            False
+        """
+        return command_name.upper() in self.capabilities
+
+    def close(self):
+        """Close current connection to the IMAP server
+
+        :return:
+        """
+        if not self.__opened:
+            return
+        self.__opened = False
+        if self.__imap_obj:
+            self.__imap_obj.shutdown()
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception as excp:
+            warnings.warn(excp, RuntimeWarning)
+
+    @property
+    def opened(self):
+        """Indicates if connection to the IMAP is alive
+
+        :return: True if connection established and alive otherwise False
+        """
+        return self.__opened
+
+    def _update_capabilities(self, capabilities: list):
+        """Updates list of available command at IMAP server
+
+        :param capabilities: None or list with IMAP commands
+        :return: None
+        """
+
+        if not capabilities:
+            return
+        self.capabilities |= set(capabilities)
+        if IMAP4REV1_CAPABILITY_KEYS & self.capabilities:
+            self.capabilities = self.capabilities | IMAP4_COMMANDS
+        if 'X-SCALIX-1' in self.capabilities:
+            self.capabilities.add('X-SCALIX-ID')
 
     def _update_server_info(self, imap_obj):
         """Executes :class:ImapIDCommand to identify client library and
@@ -292,14 +416,3 @@ class ImapClient(LockableImapObject):
         :return: 
         """
         return self._simple_command(ImapLibWrapper(func, *args, **kwargs))
-
-    def __getattr__(self, item) -> IMAP4:
-        def wrapper(*args, **kwargs):
-            return self.imaplib(item, *args, **kwargs)
-        return wrapper
-
-    def __repr__(self):
-        return """Imap connection host: {host} port: {port} secure: {secure}. 
-        {capabilities}""".format(host=self.host, port=self.port,
-                                 secure=self.secure,
-                                 capabilities=self.__server_info)
