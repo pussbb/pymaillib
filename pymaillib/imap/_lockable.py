@@ -127,7 +127,10 @@ class LockableImapObject(object):
             self.__imap_obj.shutdown()
 
     def __del__(self):
-        self.close()
+        try:
+            self.close()
+        except Exception as excp:
+            warnings.warn(excp, RuntimeWarning)
 
     @property
     def opened(self):

@@ -9,7 +9,9 @@
 """
 from typing import Iterable
 
-from . imap4 import IMAP4_SSL, IMAP4
+from .commands.wrapper import ImapLibWrapper
+from .entity.server import Namespaces
+from .imap4 import IMAP4_SSL, IMAP4
 from .commands.namespace import Namespace
 from .fetch_query_builder import FetchQueryBuilder
 from .exceptions.base import ImapObjectNotFound
@@ -243,7 +245,7 @@ class ImapClient(LockableImapObject):
         """
         return self._simple_command(ImapSelectFolderCommand(folder))
 
-    def messages(self, folder: ImapFolder, query: FetchQueryBuilder):
+    def fetch(self, folder: ImapFolder, query: FetchQueryBuilder):
         """Retries messages from a folder
 
         :param folder: ImapFolder object
@@ -274,8 +276,27 @@ class ImapClient(LockableImapObject):
         """
         return self._simple_command(ImaXScalixIDCommand())
 
-    def namespace(self):
+    def namespace(self) -> Namespaces:
+        """Returns imap server namespaces
+        
+        :return: Namespaces obj
+        """
         return self._simple_command(Namespace())
+
+    def imaplib(self, func, *args, **kwargs) -> IMAP4:
+        """Executes imapli.Imap functions
+        
+        :param func: imaplib Imap4 function name
+        :param args: function arguments 
+        :param kwargs: function named arguments
+        :return: 
+        """
+        return self._simple_command(ImapLibWrapper(func, *args, **kwargs))
+
+    def __getattr__(self, item) -> IMAP4:
+        def wrapper(*args, **kwargs):
+            return self.imaplib(item, *args, **kwargs)
+        return wrapper
 
     def __repr__(self):
         return """Imap connection host: {host} port: {port} secure: {secure}. 

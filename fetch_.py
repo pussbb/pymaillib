@@ -49,8 +49,11 @@ with mailbox.imap() as client:
     for folder in client.folders():
         print(folder)
 
+    print(client.recent())
+    raise SystemExit
+
     folder = ImapFolder(b'Inbox', b'/', {})
-    msg = list(client.messages(folder, query))[-1]
+    msg = list(client.fetch(folder, query))[-1]
     pprint.pprint(dict(msg.dump()))
     pprint.pprint(msg.rfc822_size)
     pprint.pprint(msg.header_item('Message-ID'))

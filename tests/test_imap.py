@@ -5,6 +5,7 @@
 """
 import imaplib
 
+from pymaillib.imap.entity.server import Namespaces
 from pymaillib.imap.client import ImapClient
 from pymaillib.imap.commands import ImapBaseCommand
 from pymaillib.imap.entity.folder import ImapFolder
@@ -28,8 +29,6 @@ class Imap(BaseTestCase):
     def test_init_imap_client(self):
         with self.assertRaises(TypeError):
             ImapClient()
-        with self.assertRaises(AttributeError):
-            ImapClient('', '')
 
     def test_imap_connection_opened(self):
         self.assertTrue(self.imap.opened)
@@ -131,6 +130,16 @@ class Imap(BaseTestCase):
 
     def test_fetch(self):
         with self.imap as client:
-            msgs = client.messages(client.folder_by_name('INBOX'),
+            msgs = client.fetch(client.folder_by_name('INBOX'),
                                    FetchQueryBuilder.all(1))
             self.assertTrue(msgs)
+
+    def test_namespaces(self):
+        with self.imap as client:
+            namespaces = client.namespace()
+            self.assertIsNotNone(namespaces)
+            self.assertIsInstance(namespaces, Namespaces)
+
+    def test_proxy_function(self):
+        with self.imap as client:
+            self.assertIsNotNone(client.recent())
