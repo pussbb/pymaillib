@@ -9,7 +9,7 @@ from pymaillib.imap.exceptions import ImapRuntimeError
 from pymaillib.imap.query.builders.store import StoreQueryBuilder
 
 
-class AtomParserTest(unittest.TestCase):
+class StoreQueryBuilderTest(unittest.TestCase):
 
     def test_simple(self):
         with self.assertRaises(ImapRuntimeError):

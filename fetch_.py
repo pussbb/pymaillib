@@ -6,6 +6,9 @@ import gc
 import imaplib
 import time
 
+from datetime import datetime
+
+from imap.query.builders.search import SearchQueryBuilder
 from pymaillib.imap.entity.folder import ImapFolder
 from pymaillib.imap.query.builders.store import StoreQueryBuilder
 from pymaillib.imap.query.builders.fetch import FetchQueryBuilder
@@ -14,6 +17,10 @@ from pymaillib.settings import Config
 
 imaplib.Debug = 0
 
+search = SearchQueryBuilder(uids=1)
+search.seen().recent().bcc('ssss').since(datetime.now())
+print(search)
+raise SystemExit
 
 query = FetchQueryBuilder.fast('1')
 query.fetch_envelope()

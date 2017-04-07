@@ -67,7 +67,7 @@ def build_sequence(data: Any):
         data = data.split(',')
     literals = []
     numeric = []
-    for item in data:
+    for item in filter(None, data):
         if str(item).isdigit():
             numeric.append(int(item))
             continue
@@ -79,11 +79,11 @@ def build_sequence(data: Any):
 
 
 class BaseQueryBuilder(object):
-    def __init__(self, seq_ids=None, uids=None):
+    def __init__(self, seq_ids=None, uids=None, requires_msg_set=True):
         if seq_ids and uids:
             raise ImapRuntimeError('You can specify only sequence or uid '
                                    '(range). But not both.')
-        if not seq_ids and not uids:
+        if (not seq_ids and not uids) and requires_msg_set:
             raise ImapRuntimeError('Please specify sequence or uid range.')
         self.__uids = uids
         self.__seq = seq_ids

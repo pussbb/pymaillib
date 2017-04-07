@@ -10,10 +10,12 @@
 """
 
 import operator
+from datetime import datetime
 from email import policy
 from email.header import decode_header as _email_decode_header
 import collections
 from email.parser import BytesParser, BytesHeaderParser
+from typing import Any
 
 import dateutil.parser
 
@@ -156,3 +158,27 @@ def parse_email_headers(data: bytes) -> 'EmailMessage':
         .parsebytes(data)
 # import recursion
 from .entity.email_message import EmailMessage
+
+
+def escape_string(data: Any) -> str:
+    """escapes string 
+    
+    :param data: 
+    :return: str
+    """
+    if is_iterable(data):
+        data = ' '.join([str(item) for item in data])
+    return '"{}"'.format(data.replace('"', '\"'))
+
+
+def get_date(value):
+    """Returns date as string in format DD-Jun-YYYY
+    
+    :param value: 
+    :return: 
+    """
+    if not value:
+        return value
+    if not isinstance(value, datetime):
+        value = parse_datetime(value)
+    return value.strftime("%d-%b-%Y")
