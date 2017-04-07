@@ -8,29 +8,31 @@
     :license: WTFPL, see LICENSE for more details.
 """
 import warnings
-from traceback import print_exception
-from threading import Lock, current_thread
-
 from datetime import datetime
+from threading import Lock, current_thread
+from traceback import print_exception
+
 from typing import Iterable, Any
 
-from .constants import IMAP4REV1_CAPABILITY_KEYS, IMAP4_COMMANDS
-from .commands.wrapper import ImapLibWrapper
-from .entity.server import Namespaces
-from .imap4 import IMAP4_SSL, IMAP4
-from .commands.namespace import Namespace
-from .fetch_query_builder import FetchQueryBuilder
-from .exceptions.base import ImapObjectNotFound, ImapIllegalStateException, \
-    ImapUnsupportedCommand
-from ..user import UserCredentials
-from .commands.folder import *
-from .commands.unselect import ImapUnSelectFolderCommand
+from .commands.store import ImapStoreCommand
+from .query.builders.store import StoreQueryBuilder
+from .query.builders.fetch import FetchQueryBuilder
 from .commands.fetch import ImapFetchCommand
-from .commands.id import ImapIDCommand
-from .commands.scalix_id import ImaXScalixIDCommand
+from .commands.folder import *
 from .commands.folders import ImapFolderListCommand
+from .commands.id import ImapIDCommand
 from .commands.login import ImapLoginCommand
+from .commands.namespace import Namespace
+from .commands.scalix_id import ImaXScalixIDCommand
+from .commands.unselect import ImapUnSelectFolderCommand
+from .commands.wrapper import ImapLibWrapper
+from .constants import IMAP4REV1_CAPABILITY_KEYS, IMAP4_COMMANDS
 from .entity.folder import ImapFolder
+from .entity.server import Namespaces
+from .exceptions.base import ImapObjectNotFound, ImapIllegalStateException, \
+    ImapUnsupportedCommand, ImapInvalidArgument
+from .imap4 import IMAP4_SSL, IMAP4, IMAP4Stream
+from ..user import UserCredentials
 
 
 class ImapClient(object):
@@ -245,6 +247,10 @@ class ImapClient(object):
 
         :return:  imaplib.IMAP4
         """
+        if not self.host:
+            raise ImapInvalidArgument('Imap host must not be empty')
+        if self.host.startswith('stream://'):
+            return IMAP4Stream(self.host)
         if self.secure:
             return self.__init_imapssl_obj()
         if not self.port:
@@ -381,7 +387,7 @@ class ImapClient(object):
         self.select_folder(folder)
         yield from self._simple_command(ImapFetchCommand(query))
 
-    def store(self):
+    def store(self, query: StoreQueryBuilder):
         """To avoid all those calls to STORE trying calling it with multiple
          message ids. You can either pass a comma separate listed
          (e.g. "1,2,3,4"), ranges of message ids (e.g. "1:10") or a
@@ -393,6 +399,7 @@ class ImapClient(object):
 
         :return:
         """
+        yield from self._simple_command(ImapStoreCommand(query))
 
     def scalix_id(self) -> dict:
         """Gets additional information about current user. Will work only for
@@ -409,8 +416,8 @@ class ImapClient(object):
         """
         return self._simple_command(Namespace())
 
-    def imaplib(self, func, *args, **kwargs) -> IMAP4:
-        """Executes imapli.Imap functions
+    def imaplib(self, func, *args, **kwargs) -> Any:
+        """Executes imapli.Imap4 functions
         
         :param func: imaplib Imap4 function name
         :param args: function arguments 

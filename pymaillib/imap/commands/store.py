@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    Imap4 Fetch Command
+    Imap4 Store Command
     ~~~~~~~~~~~~~~~~
     Executes  IMAP Fetch cammand
 
@@ -9,22 +9,20 @@
 """
 import imaplib
 
-from ..query.builders.fetch import FetchQueryBuilder
-from . import ImapBaseCommand
-from ..entity.email_message import ImapFetchedItem
-from ..exceptions import ImapInvalidArgument
 from ..parsers import tokenize_atom_response
-from ..utils import build_imap_response_line
+from ..query.builders.store import StoreQueryBuilder
+from . import ImapBaseCommand
+from ..exceptions import ImapInvalidArgument
 
 
-class ImapFetchCommand(ImapBaseCommand):
+class ImapStoreCommand(ImapBaseCommand):
     """Executes  IMAP Fetch cammand
 
     """
 
-    _COMMAND = 'FETCH'
+    _COMMAND = 'STORE'
 
-    def __init__(self, query: FetchQueryBuilder):
+    def __init__(self, query: StoreQueryBuilder):
         """Creates instance of Fetch IMAP command
 
         Raises:
@@ -34,9 +32,9 @@ class ImapFetchCommand(ImapBaseCommand):
         :param query: FetchQueryBuilder
         :return:
         """
-        if not isinstance(query, FetchQueryBuilder):
+        if not isinstance(query, StoreQueryBuilder):
             raise ImapInvalidArgument('query', query)
-        self.__fetch_query = query
+        self.__store_query = query
 
     def run(self, imap_obj: imaplib.IMAP4):
         """Executes IMAP fetch command according to the requested
@@ -44,13 +42,13 @@ class ImapFetchCommand(ImapBaseCommand):
 
         :param imap_obj:
         """
-        func = 'fetch'
-        args = self.__fetch_query.build()
-        if self.__fetch_query.uids:
+        func = 'store'
+        args = self.__store_query.build()
+        if self.__store_query.uids:
             func = 'uid'
-            args = ('fetch',) + args
+            args = ('store',) + args
 
         typ, data = getattr(imap_obj, func)(*args)
         self.check_response(typ, data)
-        for line, literals in build_imap_response_line(data):
-            yield ImapFetchedItem(tokenize_atom_response(line, literals))
+        for line in data:
+            yield dict(tokenize_atom_response(line, []))

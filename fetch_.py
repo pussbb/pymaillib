@@ -2,16 +2,14 @@
 """
 
 """
+import gc
 import imaplib
-import pprint
-
 import time
 
-import gc
-
 from pymaillib.imap.entity.folder import ImapFolder
+from pymaillib.imap.query.builders.store import StoreQueryBuilder
+from pymaillib.imap.query.builders.fetch import FetchQueryBuilder
 from pymaillib.mailbox import UserMailbox
-from pymaillib.imap.fetch_query_builder import FetchQueryBuilder
 from pymaillib.settings import Config
 
 imaplib.Debug = 0
@@ -38,6 +36,8 @@ with mailbox.imap() as client:
     with client as client2:
         print(client2.namespace())
 
+
+
 #RFC822.HEADER RFC822.TEXT   BODY[]
 
     #  BODY[] BODY.PEEK[HEADER] BODY.PEEK[1.MIME] BODY.PEEK[1] RFC822
@@ -50,9 +50,18 @@ with mailbox.imap() as client:
         print(folder)
 
     print(client.recent())
-    raise SystemExit
+
 
     folder = ImapFolder(b'Inbox', b'/', {})
+
+    query = StoreQueryBuilder(1)
+    query.remove(r'\SEEN')
+    client.select_folder(folder)
+    res = client.store(query)
+    print(list(res))
+
+    raise SystemExit
+
     msg = list(client.fetch(folder, query))[-1]
     pprint.pprint(dict(msg.dump()))
     pprint.pprint(msg.rfc822_size)

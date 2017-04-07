@@ -54,19 +54,20 @@ class UserMailbox(object):
         return self.__auth_data.username == auth_data.username and\
                self.__auth_data.password == auth_data.password
 
-    def imap(self, new_instance=False) -> ImapClient:
+    def imap(self) -> ImapClient:
         """Creates or returns cached instance if ImapClient class
 
-        :param new_instance: True if you need create new ImapClient instead of
-            using existing ImapClient instance
         :return: IMapClient instance
         """
-        if self.__imap_store and not new_instance:
+        if self.__imap_store:
             return self.__imap_store
-        self.__imap_store = self.__init_imap()
+        self.__imap_store = self.get_imap_client()
         return self.__imap_store
 
-    def __init_imap(self, attempts=None):
+    def get_imap_client(self):
+        return self.__create_imap_connection()
+
+    def __create_imap_connection(self, attempts=None):
         if attempts is None:
             attempts = 0
         if attempts > 10:

@@ -5,9 +5,9 @@
 """
 import unittest
 
+from pymaillib.imap.query.builders.fetch import FetchQueryBuilder
+from pymaillib.imap.query.builders import build_numeric_sequence, build_sequence
 from pymaillib.imap.exceptions import ImapRuntimeError
-from pymaillib.imap.fetch_query_builder import build_numeric_sequence, \
-    build_sequence, FetchQueryBuilder
 
 
 class AtomParserTest(unittest.TestCase):

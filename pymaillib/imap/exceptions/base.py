@@ -30,6 +30,7 @@ class ImapByeByeException(ImapClientException):
     """
     pass
 
+
 class ImapClientError(ImapClientException):
     """Common exception for an error.
 

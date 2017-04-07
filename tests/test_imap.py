@@ -5,14 +5,15 @@
 """
 import imaplib
 
-from pymaillib.imap.entity.server import Namespaces
+from pymaillib.imap.query.builders.fetch import FetchQueryBuilder
+from pymaillib.imap.query.builders.store import StoreQueryBuilder
 from pymaillib.imap.client import ImapClient
 from pymaillib.imap.commands import ImapBaseCommand
 from pymaillib.imap.entity.folder import ImapFolder
+from pymaillib.imap.entity.server import Namespaces
 from pymaillib.imap.exceptions.base import ImapIllegalStateException, \
     ImapObjectNotFound, ImapClientError, ImapRuntimeError
 from pymaillib.imap.exceptions.rfc5530 import ImapAlreadyExists
-from pymaillib.imap.fetch_query_builder import FetchQueryBuilder
 from pymaillib.user import UserCredentials
 from tests.base import BaseTestCase
 
@@ -143,3 +144,13 @@ class Imap(BaseTestCase):
     def test_proxy_function(self):
         with self.imap as client:
             self.assertIsNotNone(client.recent())
+
+    def test_store(self):
+        folder = ImapFolder(b'Inbox', b'/', {})
+        query = StoreQueryBuilder(1)
+        query.remove(r'\SEEN')
+        with self.imap as client:
+            client.select_folder(folder)
+            res = list(client.store(query))
+            self.assertIsNotNone(res)
+            self.assertEquals(len(res), 1)

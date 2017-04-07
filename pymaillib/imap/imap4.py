@@ -82,3 +82,9 @@ class IMAP4_SSL(imaplib.IMAP4_SSL):
                                                 server_hostname=self.host)
         except Exception as excp:
             raise ImapRuntimeError(excp)
+
+
+class IMAP4Stream(imaplib.IMAP4_stream):
+
+    def __init__(self, command: str):
+        super().__init__(command=command.replace('stream:/', '', 1))
