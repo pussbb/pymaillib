@@ -9,7 +9,6 @@
 """
 import imaplib
 
-from ..parsers import tokenize_atom_response
 from ..query.builders.search import SearchQueryBuilder
 from . import ImapBaseCommand
 from ..exceptions import ImapInvalidArgument
@@ -43,12 +42,7 @@ class ImapSearchCommand(ImapBaseCommand):
 
         :param imap_obj:
         """
-        func = 'search'
-        args = (self.__charset, str(self.__search_query))
-        if self.__search_query.uids:
-            func = 'uid'
-            args = ('search',) + args
-        typ, data = getattr(imap_obj, func)(*args)
+        typ, data = imap_obj.search(self.__charset, str(self.__search_query))
         self.check_response(typ, data)
         if not data:
             return []

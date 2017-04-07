@@ -56,6 +56,7 @@ class StoreQueryBuilder(BaseQueryBuilder):
         :return: 
         """
         self.__set_items('FLAGS', args)
+        return self
 
     def remove(self, *args):
         """
@@ -64,6 +65,7 @@ class StoreQueryBuilder(BaseQueryBuilder):
         :return: 
         """
         self.__set_items('-FLAGS', args)
+        return self
 
     def add(self, *args):
         """
@@ -72,6 +74,7 @@ class StoreQueryBuilder(BaseQueryBuilder):
         :return: 
         """
         self.__set_items('+FLAGS', args)
+        return self
 
     def build(self):
         if not self.__flags:
