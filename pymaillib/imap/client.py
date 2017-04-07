@@ -14,6 +14,8 @@ from traceback import print_exception
 
 from typing import Iterable, Any
 
+from .commands.search import ImapSearchCommand
+from .query.builders.search import SearchQueryBuilder
 from .commands.store import ImapStoreCommand
 from .query.builders.store import StoreQueryBuilder
 from .query.builders.fetch import FetchQueryBuilder
@@ -400,6 +402,14 @@ class ImapClient(object):
         :return:
         """
         yield from self._simple_command(ImapStoreCommand(query))
+
+    def search(self, query: SearchQueryBuilder):
+        """
+        
+        :param query: 
+        :return: 
+        """
+        yield from self._simple_command(ImapSearchCommand(query))
 
     def scalix_id(self) -> dict:
         """Gets additional information about current user. Will work only for

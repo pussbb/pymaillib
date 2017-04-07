@@ -5,6 +5,7 @@
 """
 import imaplib
 
+from pymaillib.imap.query.builders.search import SearchQueryBuilder
 from pymaillib.imap.query.builders.fetch import FetchQueryBuilder
 from pymaillib.imap.query.builders.store import StoreQueryBuilder
 from pymaillib.imap.client import ImapClient
@@ -152,5 +153,15 @@ class Imap(BaseTestCase):
         with self.imap as client:
             client.select_folder(folder)
             res = list(client.store(query))
+            self.assertIsNotNone(res)
+            self.assertEquals(len(res), 1)
+
+    def test_search(self):
+        folder = ImapFolder(b'Inbox', b'/', {})
+        query = SearchQueryBuilder()
+        query.unseen()
+        with self.imap as client:
+            client.select_folder(folder)
+            res = list(client.search(query))
             self.assertIsNotNone(res)
             self.assertEquals(len(res), 1)

@@ -17,6 +17,12 @@ class SearchQueryBuilderTest(unittest.TestCase):
         self.__test('RECENT SEEN UID 1 BCC "ss\"ss" SINCE 07-Apr-2017',
                           str(search))
 
+    def test_seq_set(self):
+        search = SearchQueryBuilder(1)
+        search.seen().recent().bcc('ss"ss').since(datetime.now())
+        self.__test('1 RECENT SEEN BCC "ss\"ss" SINCE 07-Apr-2017',
+                    str(search))
+
     def __test(self, original, generated):
         items = generated.split(' ')
         for item in original.split(' '):

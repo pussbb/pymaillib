@@ -16,20 +16,20 @@ from ..exceptions import ImapInvalidArgument
 
 
 class ImapStoreCommand(ImapBaseCommand):
-    """Executes  IMAP Fetch cammand
+    """Executes  IMAP STORE cammand
 
     """
 
     _COMMAND = 'STORE'
 
     def __init__(self, query: StoreQueryBuilder):
-        """Creates instance of Fetch IMAP command
+        """Creates instance of STORE IMAP command
 
         Raises:
             ImapRuntimeError - if :param query is not instance of
-                                FetchQueryBuilder
+                                StoreQueryBuilder
 
-        :param query: FetchQueryBuilder
+        :param query: StoreQueryBuilder
         :return:
         """
         if not isinstance(query, StoreQueryBuilder):
@@ -37,8 +37,8 @@ class ImapStoreCommand(ImapBaseCommand):
         self.__store_query = query
 
     def run(self, imap_obj: imaplib.IMAP4):
-        """Executes IMAP fetch command according to the requested
-         FetchQueryBuilder.
+        """Executes IMAP store command according to the requested
+         StoreQueryBuilder.
 
         :param imap_obj:
         """
