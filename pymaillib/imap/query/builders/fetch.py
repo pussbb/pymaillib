@@ -88,8 +88,8 @@ class FetchQueryBuilder(BaseQueryBuilder):
         self.__header_items.add(item)
         return self
 
-    def __body_item(self, peek: bool, part: str = '', size: int = 0,
-                    start_from: int = 0) -> FetchItem:
+    def __body_item(self, peek: bool, part: str='', size: int=0,
+                    start_from: int=0) -> FetchItem:
         """Create BODY section
 
         :param peek: use PEEK
@@ -108,7 +108,7 @@ class FetchQueryBuilder(BaseQueryBuilder):
         body_part.part = part
         return body_part
 
-    def fetch_body(self, part: str = None, size: int = 0, start_from: int = 0) \
+    def fetch_body(self, part: str=None, size: int=0, start_from: int=0) \
             -> 'FetchQueryBuilder':
         """Add to a fetch command BODY ATOM
 
@@ -120,8 +120,7 @@ class FetchQueryBuilder(BaseQueryBuilder):
         self.add(self.__body_item(self.__peek, part, size, start_from))
         return self
 
-    def fetch_body_peek(self, part: str = '', size: int = 0,
-                        start_from: int = 0) \
+    def fetch_body_peek(self, part: str='', size: int=0, start_from: int=0) \
             -> 'FetchQueryBuilder':
         """Add to a fetch command BODY.PEEK ATOM
 

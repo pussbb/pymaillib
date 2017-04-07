@@ -58,8 +58,8 @@ class ImapClient(object):
         self.__settings = settings
         self.__server_info = None
         self.__imap_obj = self.__init_imap_obj()
-        self._update_capabilities(ImapLoginCommand(auth_data).run(
-            self.__imap_obj)
+        self._update_capabilities(
+            ImapLoginCommand(auth_data).run(self.__imap_obj)
         )
         self._update_server_info(self.__imap_obj)
         self._update_capabilities(self.__imap_obj.capabilities)
@@ -268,7 +268,7 @@ class ImapClient(object):
             self.__settings['port'] = str(imaplib.IMAP4_SSL_PORT)
 
         return IMAP4SSL(host=self.host, port=self.port, keyfile=self.keyfile,
-                         certfile=self.certfile, timeout=self.timeout)
+                        certfile=self.certfile, timeout=self.timeout)
 
     def folders(self) -> Iterable[ImapFolder]:
         """Get folder list from IMAP server. Executes LIST command at IMAP

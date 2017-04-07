@@ -14,7 +14,6 @@ from .settings import Config
 from .user import UserCredentials
 from .imap.client import ImapClient
 from .imap.exceptions import ImapReferralsException
-import re
 
 IMAP_URL_PATTERN = rb'(?P<protocol>.+?)://(?P<username>.+?);' \
                    rb'(?P<auth>.+?)@(?P<host>.*)'
@@ -77,10 +76,10 @@ class UserMailbox(object):
         except ImapReferralsException as ex:
             _res = re.search(IMAP_URL_PATTERN, ex.imap_url)
             self.__config['imap']['host'] = _res.group('host')
-            return self.__init_imap(attempts + 1)
+            return self.__create_imap_connection(attempts + 1)
 
     def smtp(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     def __del__(self):
         try:
@@ -111,7 +110,7 @@ class UserMailbox(object):
         :return:
         """
         pass
-        # raise NotImplemented
+        # raise NotImplementedError
 
     def mailboxes(self) -> dict:
         """Get list of folders from IMAP server
