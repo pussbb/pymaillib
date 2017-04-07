@@ -51,7 +51,7 @@ class UserMailbox(object):
         return self.__auth_data
 
     def check(self, auth_data: UserCredentials):
-        return self.__auth_data.username == auth_data.username and\
+        return self.__auth_data.username == auth_data.username and \
                self.__auth_data.password == auth_data.password
 
     def imap(self) -> ImapClient:
@@ -111,7 +111,7 @@ class UserMailbox(object):
         :return:
         """
         pass
-        #raise NotImplemented
+        # raise NotImplemented
 
     def mailboxes(self) -> dict:
         """Get list of folders from IMAP server

@@ -33,7 +33,7 @@ from .entity.folder import ImapFolder
 from .entity.server import Namespaces
 from .exceptions.base import ImapObjectNotFound, ImapIllegalStateException, \
     ImapUnsupportedCommand, ImapInvalidArgument
-from .imap4 import IMAP4_SSL, IMAP4, IMAP4Stream
+from .imap4 import IMAP4SSL, IMAP4, IMAP4Stream
 from ..user import UserCredentials
 
 
@@ -93,7 +93,7 @@ class ImapClient(object):
         return wrapper
 
     def __repr__(self):
-        return """Imap connection host: {host} port: {port} secure: {secure}. 
+        return """Imap connection host: {host} port: {port} secure: {secure}.
         {capabilities}""".format(host=self.host, port=self.port,
                                  secure=self.secure,
                                  capabilities=self.__server_info)
@@ -239,15 +239,15 @@ class ImapClient(object):
     @property
     def timeout(self):
         """Socket timeout
-        
-        :return: 
+
+        :return:
         """
         return self.__settings.get('timeout', 60)
 
-    def __init_imap_obj(self) -> imaplib.IMAP4:
+    def __init_imap_obj(self) -> IMAP4:
         """Creates new IMAP4 object
 
-        :return:  imaplib.IMAP4
+        :return: IMAP4
         """
         if not self.host:
             raise ImapInvalidArgument('Imap host must not be empty')
@@ -259,15 +259,15 @@ class ImapClient(object):
             self.__settings['port'] = str(imaplib.IMAP4_PORT)
         return IMAP4(host=self.host, port=self.port, timeout=self.timeout)
 
-    def __init_imapssl_obj(self) -> imaplib.IMAP4_SSL:
+    def __init_imapssl_obj(self) -> IMAP4SSL:
         """ Creates new IMAP4 object with secure connection
 
-        :return: imaplib.IMAP4_SSL
+        :return: IMAP4SSL
         """
         if not self.port:
             self.__settings['port'] = str(imaplib.IMAP4_SSL_PORT)
 
-        return IMAP4_SSL(host=self.host, port=self.port, keyfile=self.keyfile,
+        return IMAP4SSL(host=self.host, port=self.port, keyfile=self.keyfile,
                          certfile=self.certfile, timeout=self.timeout)
 
     def folders(self) -> Iterable[ImapFolder]:
@@ -384,7 +384,6 @@ class ImapClient(object):
 
         :param folder: ImapFolder object
         :param query: FetchQueryBuilder object
-        :param stay: True or False unselect folder or not
         """
         self.select_folder(folder)
         yield from self._simple_command(ImapFetchCommand(query))
@@ -405,9 +404,9 @@ class ImapClient(object):
 
     def search(self, query: SearchQueryBuilder):
         """
-        
-        :param query: 
-        :return: 
+
+        :param query:
+        :return:
         """
         yield from self._simple_command(ImapSearchCommand(query))
 
@@ -421,17 +420,17 @@ class ImapClient(object):
 
     def namespace(self) -> Namespaces:
         """Returns imap server namespaces
-        
+
         :return: Namespaces obj
         """
         return self._simple_command(Namespace())
 
     def imaplib(self, func, *args, **kwargs) -> Any:
         """Executes imapli.Imap4 functions
-        
+
         :param func: imaplib Imap4 function name
-        :param args: function arguments 
+        :param args: function arguments
         :param kwargs: function named arguments
-        :return: 
+        :return:
         """
         return self._simple_command(ImapLibWrapper(func, *args, **kwargs))

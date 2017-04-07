@@ -38,8 +38,8 @@ class FetchQueryBuilder(BaseQueryBuilder):
 
     def set_peek(self, value: bool) -> 'FetchQueryBuilder':
         """Set using PEEK for fetching some data.
-        
-        :param value: 
+
+        :param value:
         :return: FetchQueryBuilder obj
         """
         self.__peek = value
@@ -74,29 +74,28 @@ class FetchQueryBuilder(BaseQueryBuilder):
 
     def fetch_header(self) -> 'FetchQueryBuilder':
         """Alias to fetch_rfc822_header
-        
-        :param body_part: 
+
         :return: FetchQueryBuilder obj
         """
         return self.fetch_body('HEADER')
 
-    def fetch_header_item(self, item:str) -> 'FetchQueryBuilder':
+    def fetch_header_item(self, item: str) -> 'FetchQueryBuilder':
         """fetch header item
-        
-        :param item: header item name 
+
+        :param item: header item name
         :return: FetchQueryBuilder
         """
         self.__header_items.add(item)
         return self
 
-    def __body_item(self, peek: bool, part: str='', size: int = 0,
+    def __body_item(self, peek: bool, part: str = '', size: int = 0,
                     start_from: int = 0) -> FetchItem:
         """Create BODY section
-        
-        :param peek: use PEEK 
+
+        :param peek: use PEEK
         :param part: part according RFC
         :param size: length of part or body
-        :param start_from: starting position of first octets to fetch 
+        :param start_from: starting position of first octets to fetch
         :return: FetchItem
         """
 
@@ -109,25 +108,26 @@ class FetchQueryBuilder(BaseQueryBuilder):
         body_part.part = part
         return body_part
 
-    def fetch_body(self, part: str=None, size: int =0, start_from: int=0) \
+    def fetch_body(self, part: str = None, size: int = 0, start_from: int = 0) \
             -> 'FetchQueryBuilder':
         """Add to a fetch command BODY ATOM
 
         :param part: part according RFC
         :param size: length of part or body
-        :param start_from: starting position of first octets to fetch 
+        :param start_from: starting position of first octets to fetch
         :return: FetchQueryBuilder obj
         """
         self.add(self.__body_item(self.__peek, part, size, start_from))
         return self
 
-    def fetch_body_peek(self, part: str='', size: int =0, start_from: int=0) \
+    def fetch_body_peek(self, part: str = '', size: int = 0,
+                        start_from: int = 0) \
             -> 'FetchQueryBuilder':
         """Add to a fetch command BODY.PEEK ATOM
 
         :param part: part according RFC
         :param size: length of part or body
-        :param start_from: starting position of first octets to fetch 
+        :param start_from: starting position of first octets to fetch
         :return: FetchQueryBuilder obj
         """
         self.add(self.__body_item(True, part, size, start_from))
@@ -143,7 +143,7 @@ class FetchQueryBuilder(BaseQueryBuilder):
 
     def fetch_body_structure(self) -> 'FetchQueryBuilder':
         """Add BODYSTRUCTURE message item to fetch query command
-        
+
         :return: FetchQueryBuilder obj
         """
         self.add(self._get_fetch_item(b'BODYSTRUCTURE'))
@@ -212,10 +212,10 @@ class FetchQueryBuilder(BaseQueryBuilder):
 
         :return: FetchQueryBuilder object
         """
-        return FetchQueryBuilder(sequence, uids)\
-            .fetch_flags()\
-            .fetch_rfc822_size()\
-            .fetch_internal_date()\
+        return FetchQueryBuilder(sequence, uids) \
+            .fetch_flags() \
+            .fetch_rfc822_size() \
+            .fetch_internal_date() \
             .fetch_envelope()
 
     @staticmethod
@@ -225,9 +225,9 @@ class FetchQueryBuilder(BaseQueryBuilder):
 
         :return: FetchQueryBuilder object
         """
-        return FetchQueryBuilder(sequence, uids)\
-            .fetch_flags()\
-            .fetch_rfc822_size()\
+        return FetchQueryBuilder(sequence, uids) \
+            .fetch_flags() \
+            .fetch_rfc822_size() \
             .fetch_internal_date()
 
     @staticmethod

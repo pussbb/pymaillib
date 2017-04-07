@@ -105,7 +105,7 @@ class BaseQueryBuilder(object):
         return self.__seq
 
     def _build_range(self) -> str:
-        """Helper function to build range of fetch items.  
+        """Helper function to build range of fetch items.
 
         :return: string
         """

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-    Dummy command to execute imaplibImap4 functions and have the same 
+    Dummy command to execute imaplibImap4 functions and have the same
     functionality
     ~~~~~~~~~~~~~~~~
-   
-   
+
+
     :copyright: (c) 2017 WTFPL.
     :license: WTFPL, see LICENSE for more details.
 """

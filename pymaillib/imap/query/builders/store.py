@@ -12,8 +12,8 @@ from . import BaseQueryBuilder
 
 
 class StoreQueryBuilder(BaseQueryBuilder):
-    """Creates valid STORE imap command query 
-    
+    """Creates valid STORE imap command query
+
     """
 
     def __init__(self, *args, **kwargs):
@@ -25,44 +25,42 @@ class StoreQueryBuilder(BaseQueryBuilder):
     @property
     def silent(self) -> bool:
         """
-        
-        :return: 
+
+        :return:
         """
         return self.__silent
 
     @silent.setter
     def silent(self, value):
         """
-        
-        :param value: 
-        :return: 
+
+        :param value:
+        :return:
         """
         self.__silent = bool(value)
 
     def __set_items(self, cmd, flags: set):
         """
-        
-        :param cmd: 
-        :param flags: 
-        :return: 
+
+        :param cmd:
+        :param flags:
+        :return:
         """
         self.__cmd = cmd
         self.__flags = set(flags)
 
     def replace(self, *args):
         """
-        
-        :param flags: 
-        :return: 
+
+        :return:
         """
         self.__set_items('FLAGS', args)
         return self
 
     def remove(self, *args):
         """
-        
-        :param flags: 
-        :return: 
+
+        :return:
         """
         self.__set_items('-FLAGS', args)
         return self
@@ -70,8 +68,7 @@ class StoreQueryBuilder(BaseQueryBuilder):
     def add(self, *args):
         """
 
-        :param flags: 
-        :return: 
+        :return:
         """
         self.__set_items('+FLAGS', args)
         return self

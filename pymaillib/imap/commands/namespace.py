@@ -16,7 +16,7 @@ from ..entity.server import Namespaces
 
 class Namespace(ImapBaseCommand):
     """
-    
+
     """
 
     _COMMAND = 'NAMESPACE'

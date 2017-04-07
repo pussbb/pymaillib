@@ -68,7 +68,7 @@ class IMAP4(imaplib.IMAP4):
             return item
 
 
-class IMAP4_SSL(imaplib.IMAP4_SSL):
+class IMAP4SSL(imaplib.IMAP4_SSL):
 
     def __init__(self, host: Any, port: int, keyfile=None, certfile=None,
                  ssl_context=None, timeout: int=60):

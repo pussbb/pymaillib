@@ -73,8 +73,8 @@ class FetchItem(object):
     @property
     def start_from(self):
         """Fetch data starting from position
-        
-        :return: 
+
+        :return:
         """
         return self._start_from
 

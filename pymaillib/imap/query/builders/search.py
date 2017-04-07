@@ -6,13 +6,14 @@
     :copyright: (c) 2017 WTFPL.
     :license: WTFPL, see LICENSE for more details.
 """
+from typing import Tuple
+
 from ...utils import escape_string, get_date
 from . import BaseQueryBuilder, build_sequence
 
 
 class SearchQueryBuilder(BaseQueryBuilder):
-    """Creates search query 
-    
+    """Creates search query
     """
 
     def __init__(self, *args, **kwargs):
@@ -22,17 +23,15 @@ class SearchQueryBuilder(BaseQueryBuilder):
 
     def add(self, item: str) -> 'SearchQueryBuilder':
         """Add custom search field
-        
-        :param item: string 
+        :param item: string
         :return: SearchQueryBuilder
         """
-        self.__items.add('ALL')
+        self.__items.add(str(item))
         return self
 
     def all(self) -> 'SearchQueryBuilder':
         """ All messages in the mailbox; the default initial key for
          ANDing.
-        
         :return: SearchQueryBuilderSearchQueryBuilder
         """
         self.__items.add('ALL')
@@ -41,8 +40,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
     def answered(self) -> 'SearchQueryBuilder':
         """ANSWERED
          Messages with the \Answered flag set.
-        
-        :return: SearchQueryBuilderSearchQueryBuilder 
+        :return: SearchQueryBuilderSearchQueryBuilder
         """
         self.__items.add('ANSWERED')
         return self
@@ -51,7 +49,6 @@ class SearchQueryBuilder(BaseQueryBuilder):
         """ BCC <string>
          Messages that contain the specified string in the envelope
          structure's BCC field.
-        
         :param value: value to search
         :return: SearchQueryBuilder
         """
@@ -63,8 +60,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
         """      BEFORE <date>
          Messages whose internal date (disregarding time and timezone)
          is earlier than the specified date.
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('BEFORE {}'.format(get_date(value)))
@@ -74,8 +70,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
         """BODY <string>
          Messages that contain the specified string in the body of the
          message.
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilderSearchQueryBuilder
         """
         self.__items.add('BODY {}'.format(escape_string(value)))
@@ -85,9 +80,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
         """CC <string>
          Messages that contain the specified string in the envelope
          structure's CC field.
-
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilderSearchQueryBuilder
         """
         self.__items.add('CC {}'.format(escape_string(value)))
@@ -96,7 +89,6 @@ class SearchQueryBuilder(BaseQueryBuilder):
     def deleted(self) -> 'SearchQueryBuilder':
         """DELETED
          Messages with the \Deleted flag set.
-        
         :return: SearchQueryBuilder
         """
         self.__items.add('DELETED')
@@ -105,7 +97,6 @@ class SearchQueryBuilder(BaseQueryBuilder):
     def draft(self) -> 'SearchQueryBuilder':
         """DRAFT
          Messages with the \Draft flag set.
-
         :return: SearchQueryBuilder
         """
         self.__items.add('DRAFT')
@@ -114,7 +105,6 @@ class SearchQueryBuilder(BaseQueryBuilder):
     def flagged(self) -> 'SearchQueryBuilder':
         """FLAGGED
         Messages with the \Flagged flag set.
-    
         :return: SearchQueryBuilder
         """
         self.__items.add('FLAGGED')
@@ -122,11 +112,9 @@ class SearchQueryBuilder(BaseQueryBuilder):
 
     def from_(self, value) -> 'SearchQueryBuilder':
         """FROM <string>
-         Messages that contain the specified string in the envelope
-         structure's FROM field.
-
-        
-        :param value: 
+        Messages that contain the specified string in the envelope
+        structure's FROM field.
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('FROM {}'.format(escape_string(value)))
@@ -140,9 +128,8 @@ class SearchQueryBuilder(BaseQueryBuilder):
          string to search is zero-length, this matches all messages that
          have a header line with the specified field-name regardless of
          the contents.
-        
-        :param header: 
-        :param value: 
+        :param header:
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('HEADER {} {}'.format(header, escape_string(value)))
@@ -151,8 +138,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
     def keyword(self, value) -> 'SearchQueryBuilder':
         """ KEYWORD <flag>
          Messages with the specified keyword flag set.
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('KEYWORD {}'.format(str(value)))
@@ -162,8 +148,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
         """LARGER <n>
          Messages with an [RFC-2822] size larger than the specified
          number of octets.
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('LARGER {}'.format(int(value)))
@@ -173,19 +158,15 @@ class SearchQueryBuilder(BaseQueryBuilder):
         """NEW
          Messages that have the \Recent flag set but not the \Seen flag.
          This is functionally equivalent to "(RECENT UNSEEN)".
-        
         :return: SearchQueryBuilder
         """
-
         self.__items.add('NEW')
         return self
 
     def not_(self, value) -> 'SearchQueryBuilder':
         """NOT <search-key>
          Messages that do not match the specified search key.
-
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('NOT {}'.format(escape_string(value)))
@@ -196,27 +177,24 @@ class SearchQueryBuilder(BaseQueryBuilder):
          Messages that do not have the \Recent flag set.  This is
          functionally equivalent to "NOT RECENT" (as opposed to "NOT
          NEW").
-        
         :return: SearchQueryBuilder
         """
         self.__items.add('OLD')
         return self
 
     def on(self, value) -> 'SearchQueryBuilder':
-        """      ON <date>
+        """ON <date>
          Messages whose internal date (disregarding time and timezone)
          is within the specified date.
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('ON {}'.format(get_date(value)))
         return self
 
     def or_(self, *args) -> 'SearchQueryBuilder':
-        """      OR <search-key1> <search-key2>
+        """OR <search-key1> <search-key2>
          Messages that match either search key.
-        
         :return: SearchQueryBuilder
         """
         self.__items.add('OR {}'.format(
@@ -225,9 +203,8 @@ class SearchQueryBuilder(BaseQueryBuilder):
         return self
 
     def recent(self) -> 'SearchQueryBuilder':
-        """      RECENT
+        """RECENT
          Messages that have the \Recent flag set.
-        
         :return: SearchQueryBuilder
         """
         self.__items.add('RECENT')
@@ -236,18 +213,16 @@ class SearchQueryBuilder(BaseQueryBuilder):
     def seen(self) -> 'SearchQueryBuilder':
         """SEEN
          Messages that have the \Seen flag set.
-        
         :return: SearchQueryBuilder
         """
         self.__items.add('SEEN')
         return self
 
     def sent_before(self, value) -> 'SearchQueryBuilder':
-        """      SENTBEFORE <date>
+        """SENTBEFORE <date>
          Messages whose [RFC-2822] Date: header (disregarding time and
          timezone) is earlier than the specified date.
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('SENTBEFORE {}'.format(get_date(value)))
@@ -257,8 +232,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
         """SENTON <date>
          Messages whose [RFC-2822] Date: header (disregarding time and
          timezone) is within the specified date.
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('SENTON {}'.format(get_date(value)))
@@ -268,8 +242,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
         """SENTSINCE <date>
          Messages whose [RFC-2822] Date: header (disregarding time and
          timezone) is within or later than the specified date.
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('SENTSINCE {}'.format(get_date(value)))
@@ -279,8 +252,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
         """SINCE <date>
          Messages whose internal date (disregarding time and timezone)
          is within or later than the specified date.
-        
-        :param date: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('SINCE {}'.format(get_date(value)))
@@ -290,8 +262,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
         """SMALLER <n>
          Messages with an [RFC-2822] size smaller than the specified
          number of octets.
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('SMALLER {}'.format(int(value)))
@@ -301,8 +272,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
         """SUBJECT <string>
          Messages that contain the specified string in the envelope
          structure's SUBJECT field.
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('SUBJECT {}'.format(value))
@@ -312,9 +282,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
         """TEXT <string>
          Messages that contain the specified string in the header or
          body of the message.
-
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('TEXT {}'.format(value))
@@ -324,8 +292,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
         """TO <string>
          Messages that contain the specified string in the envelope
          structure's TO field.
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('TO {}'.format(value))
@@ -335,8 +302,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
         """UID <sequence set>
          Messages with unique identifiers corresponding to the specified
          unique identifier set.  Sequence set ranges are permitted.
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('UID {}'.format(build_sequence(value)))
@@ -345,7 +311,6 @@ class SearchQueryBuilder(BaseQueryBuilder):
     def unanswered(self) -> 'SearchQueryBuilder':
         """UNANSWERED
          Messages that do not have the \Answered flag set.
-        
         :return: SearchQueryBuilder
         """
         self.__items.add('UNANSWERED')
@@ -354,7 +319,6 @@ class SearchQueryBuilder(BaseQueryBuilder):
     def undeleted(self) -> 'SearchQueryBuilder':
         """UNDELETED
          Messages that do not have the \Deleted flag set.
-        
         :return: SearchQueryBuilder
         """
         self.__items.add('UNDELETED')
@@ -363,7 +327,6 @@ class SearchQueryBuilder(BaseQueryBuilder):
     def undrfat(self) -> 'SearchQueryBuilder':
         """UNDRAFT
          Messages that do not have the \Draft flag set.
-        
         :return: SearchQueryBuilder
         """
         self.__items.add('UNDRAFT')
@@ -372,7 +335,6 @@ class SearchQueryBuilder(BaseQueryBuilder):
     def unflagged(self) -> 'SearchQueryBuilder':
         """UNFLAGGED
          Messages that do not have the \Flagged flag set.
-        
         :return: SearchQueryBuilder
         """
         self.__items.add('UNFLAGGED')
@@ -381,8 +343,7 @@ class SearchQueryBuilder(BaseQueryBuilder):
     def unkeyword(self, value) -> 'SearchQueryBuilder':
         """UNKEYWORD <flag>
          Messages that do not have the specified keyword flag set.
-        
-        :param value: 
+        :param value:
         :return: SearchQueryBuilder
         """
         self.__items.add('UNKEYWORD {}'.format(str(value)))
@@ -391,13 +352,15 @@ class SearchQueryBuilder(BaseQueryBuilder):
     def unseen(self) -> 'SearchQueryBuilder':
         """UNSEEN
          Messages that do not have the \Seen flag set.
-        
         :return: SearchQueryBuilder
         """
         self.__items.add('UNSEEN')
         return self
 
-    def build(self):
+    def build(self) -> Tuple[str, str]:
+        """Builds string from provided data
+        :return: tuple first sequence set, second query
+        """
         if self.uids:
             self.uid(filter(None, (self.uids,)))
         seq_set = ''

@@ -57,9 +57,9 @@ class Namespaces(SlotBasedImapEntity):
 
         def to_namespace_list(items: list) -> list:
             """Convert raw list data into list with Namespace's objects
-            
-            :param items: 
-            :return: 
+
+            :param items:
+            :return:
             """
             res = []
             if not items:

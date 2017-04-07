@@ -140,30 +140,32 @@ def parse_datetime(value):
 
 def parse_email(data: bytes) -> 'EmailMessage':
     """
-    
+
     :param data: bytes
     :return: EmailMessage
     """
-    return BytesParser(_class=EmailMessage, policy=policy.strict)\
+    return BytesParser(_class=EmailMessage, policy=policy.strict) \
         .parsebytes(data)
 
 
 def parse_email_headers(data: bytes) -> 'EmailMessage':
     """
-    
+
     :param data: bytes
-    :return: EmailMessage 
+    :return: EmailMessage
     """
-    return BytesHeaderParser(_class=EmailMessage, policy=policy.default)\
+    return BytesHeaderParser(_class=EmailMessage, policy=policy.default) \
         .parsebytes(data)
+
+
 # import recursion
 from .entity.email_message import EmailMessage
 
 
 def escape_string(data: Any) -> str:
-    """escapes string 
-    
-    :param data: 
+    """escapes string
+
+    :param data:
     :return: str
     """
     if is_iterable(data):
@@ -173,9 +175,9 @@ def escape_string(data: Any) -> str:
 
 def get_date(value):
     """Returns date as string in format DD-Jun-YYYY
-    
-    :param value: 
-    :return: 
+
+    :param value:
+    :return:
     """
     if not value:
         return value
