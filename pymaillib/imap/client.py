@@ -14,11 +14,13 @@ from traceback import print_exception
 
 from typing import Iterable, Any
 
-from .commands.search import ImapSearchCommand
 from .query.builders.search import SearchQueryBuilder
-from .commands.store import ImapStoreCommand
 from .query.builders.store import StoreQueryBuilder
 from .query.builders.fetch import FetchQueryBuilder
+from .commands.message import AppendMessageCommand, UpdateMessageCommand, \
+    DeleteMessageCommand
+from .commands.store import ImapStoreCommand
+from .commands.search import ImapSearchCommand
 from .commands.fetch import ImapFetchCommand
 from .commands.folder import *
 from .commands.folders import ImapFolderListCommand
@@ -31,6 +33,8 @@ from .commands.wrapper import ImapLibWrapper
 from .constants import IMAP4REV1_CAPABILITY_KEYS, IMAP4_COMMANDS
 from .entity.folder import ImapFolder
 from .entity.server import Namespaces
+from .entity.email_message import EmailMessage
+
 from .exceptions.base import ImapObjectNotFound, ImapIllegalStateException, \
     ImapUnsupportedCommand, ImapInvalidArgument
 from .imap4 import IMAP4SSL, IMAP4, IMAP4Stream
@@ -434,3 +438,33 @@ class ImapClient(object):
         :return:
         """
         return self._simple_command(ImapLibWrapper(func, *args, **kwargs))
+
+    def append_message(self, message: EmailMessage, folder:ImapFolder) \
+            -> EmailMessage:
+        """
+        
+        :param message: 
+        :param folder: 
+        :return: 
+        """
+        return self._simple_command(AppendMessageCommand(message, folder))
+
+    def update_message(self, message: EmailMessage, folder:ImapFolder) \
+            -> EmailMessage:
+        """
+        
+        :param message: 
+        :param folder: 
+        :return: 
+        """
+        return self._simple_command(UpdateMessageCommand(message, folder))
+
+    def delete_message(self, message: EmailMessage) -> bool:
+        """
+        
+        :param uids: 
+        :return: 
+        """
+        self._simple_command(DeleteMessageCommand(message.uid))
+        message.uid = None
+        return message

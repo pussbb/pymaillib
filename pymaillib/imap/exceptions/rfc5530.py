@@ -274,6 +274,18 @@ class ImapNoneExistent(ImapClientException):
     pass
 
 
+class ImapTryCreate(ImapClientException):
+    """If the destination mailbox does not exist, a server MUST return an
+      error, and MUST NOT automatically create the mailbox.  Unless it
+      is certain that the destination mailbox can not be created, the
+      server MUST send the response code "[TRYCREATE]" as the prefix of
+      the text of the tagged NO response.  This gives a hint to the
+      client that it can attempt a CREATE command and retry the APPEND
+      if the CREATE is successful.
+    """
+    pass
+
+
 RFC5530 = {
     'UNAVAILABLE': ImapUnavailable,
     'AUTHENTICATIONFAILED': ImapAuthenticationFailed,
@@ -292,4 +304,5 @@ RFC5530 = {
     'OVERQUOTA': ImapOverQuota,
     'ALREADYEXISTS': ImapAlreadyExists,
     'NONEXISTENT': ImapNoneExistent,
+    'TRYCREATE': ImapTryCreate,
 }

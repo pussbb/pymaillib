@@ -180,7 +180,7 @@ class ImapFetchedItem(dict, ImapEntity):
         """
         return self.get('BODY', {}).get(num)
 
-    def dump(self) -> Generator[Any, Any]:
+    def dump(self) -> Generator[Any, Any, Any]:
         """
         
         :return: 

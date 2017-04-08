@@ -11,7 +11,7 @@
     STATUS (EXISTS ......)
 """
 import imaplib
-from typing import AnyStr
+from typing import AnyStr, Any
 
 from ..exceptions import ImapRuntimeError
 from ..constants import FOLDER_UNTAGGED_KEYS
@@ -87,7 +87,7 @@ class ImapCreateFolderCommand(ImapBaseCommand):
 
     _COMMAND = 'CREATE'
 
-    def __init__(self, folder_name: AnyStr, parent: ImapFolder):
+    def __init__(self, folder_name: Any, parent: ImapFolder):
         """Creates new instance of the class specifying for what folder command
         will be executed.
 
@@ -95,6 +95,9 @@ class ImapCreateFolderCommand(ImapBaseCommand):
         :param parent: ImapFolder
         :return:
         """
+        if isinstance(folder_name, ImapFolder):
+            folder_name = folder_name.name
+
         self.__folder_name = ImapFolder.build_folder_name(folder_name, parent)
 
     def error_message(self):

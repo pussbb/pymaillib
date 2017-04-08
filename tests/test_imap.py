@@ -4,7 +4,9 @@
     :license: WTFPL, see LICENSE for more details.
 """
 import imaplib
+from email.headerregistry import Address
 
+from pymaillib.imap.entity.email_message import EmailMessage
 from pymaillib.imap.query.builders.search import SearchQueryBuilder
 from pymaillib.imap.query.builders.fetch import FetchQueryBuilder
 from pymaillib.imap.query.builders.store import StoreQueryBuilder
@@ -165,3 +167,35 @@ class Imap(BaseTestCase):
             res = list(client.search(query))
             self.assertIsNotNone(res)
             self.assertEquals(len(res), 1)
+
+    def test_message_manipulation(self):
+        msg = EmailMessage()
+        msg['Subject'] = "Ayons asperges pour le déjeuner"
+        msg['From'] = Address("Pepé Le Pew", "pepe", "example.com")
+        msg['To'] = (Address("Penelope Pussycat", "penelope", "example.com"),
+                     Address("Fabrette Pussycat", "fabrette", "example.com"))
+        msg.set_content("""\
+        Salut!
+
+        Cela ressemble à un excellent recipie[1] déjeuner.
+
+        [1] http://www.yummly.com/recipe/Roasted-Asparagus-Epicurious-203718
+
+        --Pepé
+        """)
+        folder = ImapFolder(b'Inbox', b'/', {})
+        with self.imap as client:
+            client.select_folder(folder)
+            msg = client.append_message(msg, folder)
+            self.assertIsNotNone(msg)
+            self.assertIsInstance(msg, EmailMessage)
+            self.assertIsNotNone(msg.uid)
+            # update message
+            msg.replace_header('Subject', 'Renamed')
+            old_uid = msg.uid
+            client.update_message(msg, folder)
+            self.assertIsNotNone(msg)
+            self.assertIsInstance(msg, EmailMessage)
+            self.assertIsNotNone(msg.uid)
+            self.assertNotEqual(old_uid, msg.uid)
+            client.delete_message(msg)

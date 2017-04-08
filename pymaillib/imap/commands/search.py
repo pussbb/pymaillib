@@ -29,6 +29,7 @@ class ImapSearchCommand(ImapBaseCommand):
                                 SearchQueryBuilder
 
         :param query: FetchQueryBuilder
+        :param charset: Any
         :return:
         """
         if not isinstance(query, SearchQueryBuilder):

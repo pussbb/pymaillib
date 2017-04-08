@@ -10,7 +10,7 @@
 """
 import imaplib
 
-from imap.commands import ImapBaseCommand
+from . import ImapBaseCommand
 
 
 class ImapLibWrapper(ImapBaseCommand):
