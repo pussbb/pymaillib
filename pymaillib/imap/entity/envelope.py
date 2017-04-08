@@ -58,10 +58,18 @@ class Address(SlotBasedImapEntity, HeaderAddress):
 
     @property
     def rfc(self) -> str:
+        """Get formatted address with display name and email
+        
+        :return: 
+        """
         return '{} <{}@{}>'.format(self.display_name, self.username,
                                    self.domain)
 
-    def dump(self):
+    def dump(self) -> dict:
+        """
+        
+        :return: 
+        """
         return {
             'name': self.name,
             'route': self.route,
