@@ -76,7 +76,7 @@ class SlotBasedImapEntity(ImapEntity):
         # left items
         return args, kwargs
 
-    def dump(self):
+    def dump(self) -> dict:
         """Convert class attributes into dictionary
 
         :return: dict

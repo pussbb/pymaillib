@@ -7,6 +7,7 @@
     :copyright: (c) 2017 WTFPL.
     :license: WTFPL, see LICENSE for more details.
 """
+from typing import Iterable, List
 
 from ..utils import build_content_part, list_to_dict, decode_parameter_value, \
     is_iterable
@@ -126,7 +127,7 @@ class MultiPartBodyPart(SimpleBodyPart):
         self._parts = parts
 
     @property
-    def parts(self) -> list:
+    def parts(self) -> List[SimpleBodyPart]:
         return self._parts
 
     def __iter__(self):
@@ -146,10 +147,14 @@ class BodyStructure(ImapEntity):
 
     __slots__ = '__part',
 
-    def __init__(self, part):
+    def __init__(self, part: SimpleBodyPart):
         self.__part = part
 
-    def is_multipart(self):
+    def is_multipart(self) -> bool:
+        """Is this part is multipart
+        
+        :return: 
+        """
         return isinstance(self.__part, MultiPartBodyPart)
 
     @property
@@ -160,20 +165,20 @@ class BodyStructure(ImapEntity):
         """
         return self.__part
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable[SimpleBodyPart]:
         try:
             yield from self.__part
         except TypeError as _:
             yield self.__part
 
-    def dump(self):
+    def dump(self) -> List[SimpleBodyPart]:
         """Printable version
 
         :return: list
         """
         yield from self
 
-    def find_by_mime_id(self, mime_id):
+    def find_by_mime_id(self, mime_id) -> 'SimpleBodyPart':
         """Searchers message part by his positional index
 
         :param mime_id: str
@@ -187,7 +192,7 @@ class BodyStructure(ImapEntity):
         return '{}'.format([item.dump() for item in self.dump()])
 
     @staticmethod
-    def build(items, index=0, recursive=False):
+    def build(items, index=0, recursive=False) -> 'BodyStructure':
         """Constructs instance of BodyStructure class with all message parts
         from a list
 

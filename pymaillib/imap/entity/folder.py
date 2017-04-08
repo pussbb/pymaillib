@@ -140,21 +140,21 @@ class ImapFolder(ImapEntity):
         )
 
     @property
-    def editable(self):
+    def editable(self) -> bool:
         """Indicates can rename or delete folder
 
         :return:
         """
         return not self.special_folder and self.selectable
 
-    def imap_name(self):
+    def imap_name(self) -> str:
         """returns escaped printable folder name
 
         :return:
         """
         return ImapFolder.escape_name(imap4_utf7_encode(self.name))
 
-    def dump(self):
+    def dump(self) -> dict:
         """for json render
 
         :return: dict
@@ -173,7 +173,7 @@ class ImapFolder(ImapEntity):
         }
 
     @staticmethod
-    def build(data: bytes) -> object:
+    def build(data: bytes) -> 'ImapFolder':
         """Construct from raw string valid ImapFolder object
 
         :param data:
@@ -206,7 +206,7 @@ class ImapFolder(ImapEntity):
         return name
 
     @staticmethod
-    def build_folder_name(name: str, parent=None):
+    def build_folder_name(name: str, parent=None) -> str:
         """Builds new folder name used in CREATE RENAME imap command classes
 
         :param name: bytes or str

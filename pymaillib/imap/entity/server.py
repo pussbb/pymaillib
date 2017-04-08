@@ -3,6 +3,7 @@
 
 """
 from collections import namedtuple
+from typing import List
 
 from . import SlotBasedImapEntity
 from ...user import UserInfo
@@ -52,7 +53,12 @@ class Namespaces(SlotBasedImapEntity):
     __slots__ = ('private', 'other_users', 'public_folders')
 
     @staticmethod
-    def build(data):
+    def build(data: List) -> 'Namespaces':
+        """Builds Namespaces object from provided data
+        
+        :param data: 
+        :return: Namespaces
+        """
         private, other_users, public_folders = data
 
         def to_namespace_list(items: list) -> list:

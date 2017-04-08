@@ -10,7 +10,7 @@
 from email.errors import InvalidBase64CharactersDefect
 from email.message import EmailMessage as ImapLibEmailMessage
 from email.base64mime import body_decode
-from typing import Any
+from typing import Any, List, AnyStr, Generator
 
 from . import ImapEntity
 
@@ -22,31 +22,53 @@ class EmailMessage(ImapLibEmailMessage, ImapEntity):
         self.__sequence = 0
 
     @property
-    def uid(self):
+    def uid(self) -> int:
+        """Message UID
+        
+        :return: 
+        """
         return self.__uid
 
     @uid.setter
-    def uid(self, value):
+    def uid(self, value: int):
+        """Set message uid
+        
+        :param value: int
+        :return: 
+        """
         self.__uid = value
 
     @property
-    def sequence(self):
+    def sequence(self) -> int:
+        """Sequence number
+        
+        :return: int
+        """
         return self.__sequence
 
     @sequence.setter
-    def sequence(self, value):
+    def sequence(self, value: int):
+        """Set sequence number
+        
+        :param value: 
+        :return: 
+        """
         self.__sequence = value
 
-    def headers(self):
+    def headers(self) -> List[AnyStr]:
+        """Email message headers if present
+        
+        :return: 
+        """
         return self._headers
 
-    def get_content(self):
+    def get_content(self) -> AnyStr:
         try:
             return super().get_content()
         except InvalidBase64CharactersDefect as _:
             return self.__parse_linear_base64()
 
-    def __parse_linear_base64(self):
+    def __parse_linear_base64(self) -> bytes:
         """Original parser will fail in case such email
         ```
         Content-Type: text/plain\r\n
@@ -66,11 +88,19 @@ class EmailMessage(ImapLibEmailMessage, ImapEntity):
     def __repr__(self):
         return self.as_string()
 
-    def dump(self):
+    def dump(self) -> bytes:
+        """Returns email as bytes
+        
+        :return: 
+        """
         return self.as_bytes()
 
 
 class ImapFetchedItem(dict, ImapEntity):
+    """Generic class for fetched item from imap
+    
+    """
+
     def __init__(self, seq=None, **kwargs):
         if not seq:
             super().__init__(**kwargs)
@@ -100,7 +130,12 @@ class ImapFetchedItem(dict, ImapEntity):
         else:
             super().__setitem__(key, value)
 
-    def __proccess_header(self, data):
+    def __proccess_header(self, data: bytes):
+        """Parsers email header 
+        
+        :param data: bytes 
+        :return: 
+        """
         if 'HEADER' not in self:
             super().__setitem__('HEADER', parse_email_headers(data))
             return
@@ -113,7 +148,13 @@ class ImapFetchedItem(dict, ImapEntity):
     def __getattr__(self, item):
         return self.get(item.upper().replace('_', '.'))
 
-    def header_item(self, key, default=None):
+    def header_item(self, key: AnyStr, default=None):
+        """Get header item value
+        
+        :param key: name of header item
+        :param default: 
+        :return: 
+        """
         store = {key: default}
         if 'HEADER' in self:
             store = self['HEADER']
@@ -124,13 +165,26 @@ class ImapFetchedItem(dict, ImapEntity):
         return store[key]
 
     @property
-    def email_message(self):
+    def email_message(self) -> EmailMessage:
+        """Returns EmailMessage object 
+        
+        :return: 
+        """
         return self.get('RFC822', self.get_fetched_part(0))
 
     def get_fetched_part(self, num: Any):
+        """
+        
+        :param num: 
+        :return: 
+        """
         return self.get('BODY', {}).get(num)
 
-    def dump(self):
+    def dump(self) -> Generator[Any, Any]:
+        """
+        
+        :return: 
+        """
         for item, value in self.items():
             if 'HEADER' == item:
                 yield item, dict(value.headers())

@@ -7,6 +7,10 @@
     :copyright: (c) 2017 WTFPL.
     :license: WTFPL, see LICENSE for more details.
 """
+from datetime import datetime
+
+from typing import Any, List, Tuple
+
 from ..utils import parse_datetime
 from .body_structure import BodyStructure
 from .envelope import Envelope
@@ -115,7 +119,7 @@ class UIDFetchItem(FetchItem):
     name = rb'UID'
 
     @staticmethod
-    def build(atom_data, value):
+    def build(atom_data, value) -> Any:
         """ A number expressing the unique identifier of the message.
 
         :param atom_data: bytes
@@ -233,7 +237,7 @@ class BodyFetchItem(FetchItem):
     partial = True
 
     @staticmethod
-    def build(atom_data, value):
+    def build(atom_data, value) -> dict:
         """ BODY[<section>]<<origin octet>>
         A string expressing the body contents of the specified section.
         The string SHOULD be interpreted by the client according to the
@@ -294,7 +298,7 @@ class BodyStructureFetchItem(FetchItem):
     name = rb'BODYSTRUCTURE'
 
     @staticmethod
-    def build(atom_data, value):
+    def build(atom_data, value) -> 'BODYSTRUCTURE':
         """BODYSTRUCTURE
          A parenthesized list that describes the [MIME-IMB] body
          structure of a message.  This is computed by the server by
@@ -452,7 +456,7 @@ class EnvelopeFetchItem(FetchItem):
     name = rb'ENVELOPE'
 
     @staticmethod
-    def build(atom_data, value):
+    def build(atom_data, value) -> 'EnvelopeFetchItem':
         """ENVELOPE
         A parenthesized list that describes the envelope structure of a
         message.  This is computed by the server by parsing the
@@ -528,7 +532,7 @@ class FlagsFetchItem(FetchItem):
     name = rb'FLAGS'
 
     @staticmethod
-    def build(atom_data, value):
+    def build(atom_data, value) -> List[bytes]:
         """FLAGS
          A parenthesized list of flags that are set for this message.
 
@@ -549,7 +553,7 @@ class IternalDateFetchItem(FetchItem):
     name = rb'INTERNALDATE'
 
     @staticmethod
-    def build(atom_data, value):
+    def build(atom_data, value) -> datetime:
         """INTERNALDATE
          A string representing the internal date of the message.
 
@@ -576,7 +580,7 @@ class RFC822FetchItem(FetchItem):
     partial = False
 
     @staticmethod
-    def build(atom_data, value):
+    def build(atom_data, value) -> Any:
         """
 
         :param atom_data:
@@ -619,7 +623,7 @@ class RFC822TextFetchItem(RFC822FetchItem):
     name = rb'RFC822.TEXT'
 
 
-class XCutomFetchItem(FetchItem):
+class XCustomFetchItem(FetchItem):
     """Handle Custom atoms in fetch response
 
     """
@@ -627,7 +631,7 @@ class XCutomFetchItem(FetchItem):
     name = rb'X-'
 
     @staticmethod
-    def build(atom_data, value):
+    def build(atom_data, value) -> Tuple[Any, Any]:
         """
 
         :param atom_data:

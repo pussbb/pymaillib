@@ -7,6 +7,8 @@
     :copyright: (c) 2017 WTFPL.
     :license: WTFPL, see LICENSE for more details.
 """
+from typing import Iterator, List
+
 from ..utils import decode_parameter_value, parse_datetime
 from . import ImapEntity, SlotBasedImapEntity
 
@@ -19,7 +21,7 @@ class Envelope(SlotBasedImapEntity):
                  'bcc', 'in_reply_to', 'message_id')
 
     @staticmethod
-    def from_list(items):
+    def from_list(items: list) -> 'Envelope':
         """Construct Envelope object from a list
 
         :param items: list
@@ -55,11 +57,11 @@ class AddressList(ImapEntity):
 
     __slots__ = '_addresses',
 
-    def __init__(self, addresses):
+    def __init__(self, addresses: List[Address]):
         self._addresses = addresses
 
     @staticmethod
-    def from_list(items):
+    def from_list(items) -> 'AddressList':
         """Convert list into AddresList object with Address objects
 
         :param items: iterable
@@ -69,10 +71,10 @@ class AddressList(ImapEntity):
             return AddressList([])
         return AddressList([Address(*item) for item in items])
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Address]:
         yield from self._addresses
 
-    def dump(self):
+    def dump(self) -> List[Address]:
         """Serialize class attributes
 
         :return:
