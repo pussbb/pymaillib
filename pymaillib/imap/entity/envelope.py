@@ -50,7 +50,8 @@ class Address(SlotBasedImapEntity, HeaderAddress):
     def __init__(self, *args, **kwargs):
         args += (None,)*3
         super().__init__(*args, **kwargs)
-        self._display_name = self.name.decode()
+        if self.name:
+            self._display_name = self.name.decode()
         self.name = decode_parameter_value(self.name)
         self._username = self.mailbox.decode()
         self._domain = self.host.decode()
@@ -59,7 +60,7 @@ class Address(SlotBasedImapEntity, HeaderAddress):
     def rfc(self) -> str:
         return '{} <{}@{}>'.format(self.display_name, self.username,
                                    self.domain)
-    
+
     def dump(self):
         return {
             'name': self.name,

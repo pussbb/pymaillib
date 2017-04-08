@@ -44,7 +44,7 @@ class AtomParserTest(unittest.TestCase):
             b'@MHS>")))',
         ]
         items = self.parse_items(lines)
-        self.assertEquals(len(items), 2)
+        self.assertEqual(len(items), 2)
         for msg in items:
             self.assertIn(msg['ENVELOPE'].subject, (None, ''))
 
@@ -442,7 +442,7 @@ class AtomParserTest(unittest.TestCase):
         ]
         line = list(ResponseTokenizer(lines[0], []))
         self.assertIsNotNone(line)
-        self.assertEquals(len(line), 1)
+        self.assertEqual(len(line), 1)
         self.assertNotEqual(list_to_dict(line[0]), [])
 
     def test_dolar_sign(self):

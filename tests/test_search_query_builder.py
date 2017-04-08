@@ -13,13 +13,13 @@ class SearchQueryBuilderTest(unittest.TestCase):
 
     def test_simple(self):
         search = SearchQueryBuilder(uids=1)
-        search.seen().recent().bcc('ss"ss').since(datetime.now())
+        search.seen().recent().bcc('ss"ss').since('07-Apr-2017')
         self.__test('RECENT SEEN UID 1 BCC "ss\"ss" SINCE 07-Apr-2017',
                           str(search))
 
     def test_seq_set(self):
         search = SearchQueryBuilder(1)
-        search.seen().recent().bcc('ss"ss').since(datetime.now())
+        search.seen().recent().bcc('ss"ss').since('07-Apr-2017')
         self.__test('1 RECENT SEEN BCC "ss\"ss" SINCE 07-Apr-2017',
                     str(search))
 

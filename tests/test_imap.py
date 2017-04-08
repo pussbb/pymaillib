@@ -156,7 +156,7 @@ class Imap(BaseTestCase):
             client.select_folder(folder)
             res = list(client.store(query))
             self.assertIsNotNone(res)
-            self.assertEquals(len(res), 1)
+            self.assertEqual(len(res), 1)
 
     def test_search(self):
         folder = ImapFolder(b'Inbox', b'/', {})
@@ -166,7 +166,7 @@ class Imap(BaseTestCase):
             client.select_folder(folder)
             res = list(client.search(query))
             self.assertIsNotNone(res)
-            self.assertEquals(len(res), 1)
+            self.assertEqual(len(res), 1)
 
     def test_message_manipulation(self):
         msg = EmailMessage()
