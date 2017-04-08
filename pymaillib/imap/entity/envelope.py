@@ -8,6 +8,7 @@
     :license: WTFPL, see LICENSE for more details.
 """
 from typing import Iterator, List
+from email.headerregistry import Address as HeaderAddress
 
 from ..utils import decode_parameter_value, parse_datetime
 from . import ImapEntity, SlotBasedImapEntity
@@ -38,16 +39,36 @@ class Envelope(SlotBasedImapEntity):
         )
 
 
-class Address(SlotBasedImapEntity):
+class Address(SlotBasedImapEntity, HeaderAddress):
     """Represents email address in ENVELOPE
 
     """
 
-    __slots__ = 'name', 'route', 'mailbox', 'host'
+    __slots__ = 'name', 'route', 'mailbox', 'host', '_display_name', \
+                '_username', '_domain'
 
     def __init__(self, *args, **kwargs):
+        args += (None,)*3
         super().__init__(*args, **kwargs)
+        self._display_name = self.name.decode()
         self.name = decode_parameter_value(self.name)
+        self._username = self.mailbox.decode()
+        self._domain = self.host.decode()
+
+    @property
+    def rfc(self) -> str:
+        return '{} <{}@{}>'.format(self.display_name, self.username,
+                                   self.domain)
+    
+    def dump(self):
+        return {
+            'name': self.name,
+            'route': self.route,
+            'mailbox': self.mailbox,
+            'host': self.host,
+            'addr_spec': self.addr_spec,
+            'dispay': self.rfc,
+        }
 
 
 class AddressList(ImapEntity):

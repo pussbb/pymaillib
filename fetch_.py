@@ -70,6 +70,6 @@ with mailbox.imap() as client:
     # 'UID': 1}
     pprint.pprint(dict(msg.dump()))
     # 1020
-    pprint.pprint(msg.rfc822_size)
+    pprint.pprint(msg.envelope)
     # '<1991954822.31486384534092.JavaMail.root@test.centosx64.com>'
     pprint.pprint(msg.header_item('Message-ID'))
