@@ -8,6 +8,8 @@
     :license: WTFPL, see LICENSE for more details.
 """
 import warnings
+
+import re
 from typing import Any
 
 from .settings import Config

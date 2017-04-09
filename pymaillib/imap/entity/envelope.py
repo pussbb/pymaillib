@@ -52,6 +52,8 @@ class Address(SlotBasedImapEntity, HeaderAddress):
         super().__init__(*args, **kwargs)
         if self.name:
             self._display_name = self.name.decode()
+        else:
+            self._display_name = ''
         self.name = decode_parameter_value(self.name)
         self._username = self.mailbox.decode()
         self._domain = self.host.decode()
@@ -63,7 +65,7 @@ class Address(SlotBasedImapEntity, HeaderAddress):
         :return: 
         """
         return '{} <{}@{}>'.format(self.display_name, self.username,
-                                   self.domain)
+                                   self.domain).strip()
 
     def dump(self) -> dict:
         """
@@ -76,7 +78,7 @@ class Address(SlotBasedImapEntity, HeaderAddress):
             'mailbox': self.mailbox,
             'host': self.host,
             'addr_spec': self.addr_spec,
-            'dispay': self.rfc,
+            'display': self.rfc,
         }
 
 
