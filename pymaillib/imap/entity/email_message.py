@@ -146,7 +146,7 @@ class ImapFetchedItem(dict, ImapEntity):
                 self['HEADER'].add_header(key, name)
 
     def __getattr__(self, item):
-        return self.get(item.upper().replace('_', '.'))
+        return self.get(item.upper().replace('_', '.'), self.get(item))
 
     def header_item(self, key: AnyStr, default=None):
         """Get header item value

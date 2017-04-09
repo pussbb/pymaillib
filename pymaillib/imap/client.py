@@ -404,7 +404,7 @@ class ImapClient(object):
 
         :return:
         """
-        yield from self._simple_command(ImapStoreCommand(query))
+        return self._simple_command(ImapStoreCommand(query))
 
     def search(self, query: SearchQueryBuilder):
         """
@@ -412,7 +412,7 @@ class ImapClient(object):
         :param query:
         :return:
         """
-        yield from self._simple_command(ImapSearchCommand(query))
+        return self._simple_command(ImapSearchCommand(query))
 
     def scalix_id(self) -> dict:
         """Gets additional information about current user. Will work only for
