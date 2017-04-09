@@ -64,7 +64,9 @@ class Address(SlotBasedImapEntity, HeaderAddress):
         
         :return: 
         """
-        return '{} <{}@{}>'.format(self.display_name, self.username,
+        if not self.domain:
+            return self.username
+        return '{}<{}@{}>'.format(self.display_name, self.username,
                                    self.domain).strip()
 
     def dump(self) -> dict:
