@@ -201,19 +201,25 @@ class ImapFetchedItem(dict, ImapEntity):
             raise ImapRuntimeError('You forgot to load bodystructure')
         part_info = self.bodystructure.find_by_mime_id(str(num))
 
+        if not part_info:
+            raise ImapRuntimeError('Could not find part info')
+
+        """
         part = EmailMessage(policy.strict)
         part.set_charset(part_info.charset)
         if part_info.is_multipart():
             part.set_boundary(part_info.boundary)
-        #part.set_default_type(part_info.content_part)
-        #part.set_type(part_info.content_part)
+        part.set_default_type(part_info.content_part)
+        part.set_type(part_info.content_part)
         # <'bytes'>, maintype, subtype, cte="base64", disposition=None,
 
-        part.set_payload(self.decode(part_info, part_data))
+        part.set_content(part_data, maintype=part_info.main_type, subtype=part_info.subtype, cte=part_info.encoding)
         print(part['content-transfer-encoding'])
         #print(decode_b(part_data))
-        #print(part.get_payload(decode=True))
-        return part
+        print(part.get_content())
+        """
+
+        return part_info, part_data
 
     def decode(self, part_info, data):
         if part_info.encoding == 'quoted-printable':
