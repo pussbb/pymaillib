@@ -50,13 +50,11 @@ class Address(SlotBasedImapEntity, HeaderAddress):
     def __init__(self, *args, **kwargs):
         args += (None,)*3
         super().__init__(*args, **kwargs)
-        if self.name:
-            self._display_name = self.name.decode()
-        else:
-            self._display_name = ''
+
+        self._display_name = self.name
         self.name = decode_parameter_value(self.name)
-        self._username = self.mailbox.decode()
-        self._domain = self.host.decode()
+        self._username = self.mailbox
+        self._domain = self.host
 
     @property
     def rfc(self) -> str:

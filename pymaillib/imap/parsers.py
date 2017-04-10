@@ -9,6 +9,7 @@
 """
 import warnings
 
+
 try:
     from .pyimapparser import ResponseTokenizer, parse_atom_name, get_part
 except ImportError as _:

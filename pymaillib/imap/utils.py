@@ -10,12 +10,12 @@
 """
 
 import operator
+import collections
 from datetime import datetime
 from email import policy
 from email.header import decode_header as _email_decode_header
-import collections
 from email.parser import BytesParser, BytesHeaderParser
-from typing import Any
+from typing import Any, AnyStr
 
 import dateutil.parser
 
@@ -66,7 +66,7 @@ def build_content_part(main, subtype):
     :param subtype: bytes
     :return: bytes
     """
-    return b'/'.join([main, subtype]).lower()
+    return '/'.join([main, subtype]).lower()
 
 
 def linear_list(data):
@@ -82,7 +82,25 @@ def linear_list(data):
             yield item
 
 
-def decode_parameter_value(value: bytes):
+def decode_list_items(data):
+    """Check items in list and decode bytes to str if needed
+    
+    :param data: 
+    :return: 
+    """
+    res = []
+    for item in iter(data):
+        if isinstance(item, (bytearray, bytes)):
+            res.append(item.decode())
+            continue
+        if is_iterable(item):
+            res.append(decode_list_items(item))
+            continue
+        res.append(item)
+    return res
+
+
+def decode_parameter_value(value: AnyStr):
     """Decodes strings like '=?UTF-8?Q?' into human readable string
 
     :param value: bytes
@@ -91,11 +109,11 @@ def decode_parameter_value(value: bytes):
     if not value:
         return ''
 
-    if not isinstance(value, bytes):
-        return value
+    if isinstance(value, (bytes, bytearray)):
+        value = value.decode()
 
     res = []
-    for part, enc in _email_decode_header(value.decode()):
+    for part, enc in _email_decode_header(value):
         if isinstance(part, bytes):
             if not enc:
                 enc = 'utf-8'

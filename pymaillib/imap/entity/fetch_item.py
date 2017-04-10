@@ -11,7 +11,7 @@ from datetime import datetime
 
 from typing import Any, List, Tuple
 
-from ..utils import parse_datetime
+from ..utils import parse_datetime, decode_list_items
 from .body_structure import BodyStructure
 from .envelope import Envelope
 
@@ -428,7 +428,7 @@ class BodyStructureFetchItem(FetchItem):
         :param value:
         :return:
         """
-        return BodyStructure.build(value)
+        return BodyStructure.build(decode_list_items(value))
 
 
 class BodyPeekFetchItem(BodyFetchItem):
@@ -519,7 +519,7 @@ class EnvelopeFetchItem(FetchItem):
         :param value:
         :return:
         """
-        return Envelope.from_list(value)
+        return Envelope.from_list(decode_list_items(value))
 
 
 class FlagsFetchItem(FetchItem):
@@ -540,7 +540,7 @@ class FlagsFetchItem(FetchItem):
         :param value:
         :return:
         """
-        return value
+        return decode_list_items(value)
 
 
 class IternalDateFetchItem(FetchItem):

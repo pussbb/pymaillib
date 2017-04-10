@@ -85,19 +85,5 @@ class SlotBasedImapEntity(ImapEntity):
         for item in self.__slots__:
             if item.startswith('_'):
                 continue
-
-            def recursive_dict_bytes_to_str(value):
-                if not isinstance(value, dict):
-                    if isinstance(value, (bytearray, bytes)):
-                        return value.decode()
-                    return value
-
-                res = {}
-                for key, item_value in value.items():
-                    if isinstance(key, (bytearray, bytes)):
-                        key = key.decode()
-                    res[key] = recursive_dict_bytes_to_str(item_value)
-                return res
-
-            res[item] = recursive_dict_bytes_to_str(getattr(self, item))
+            res[item] = getattr(self, item)
         return res

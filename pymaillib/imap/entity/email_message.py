@@ -7,11 +7,18 @@
     :copyright: (c) 2017 WTFPL.
     :license: WTFPL, see LICENSE for more details.
 """
+import quopri
+import uu
+from email import policy
+from email._encoded_words import decode_b
 from email.errors import InvalidBase64CharactersDefect
-from email.message import EmailMessage as ImapLibEmailMessage
+from email.message import EmailMessage as ImapLibEmailMessage, MIMEPart
 from email.base64mime import body_decode
+
+from io import BytesIO
 from typing import Any, List, AnyStr, Generator
 
+from ..exceptions import ImapRuntimeError
 from . import ImapEntity
 
 
@@ -178,7 +185,53 @@ class ImapFetchedItem(dict, ImapEntity):
         :param num: 
         :return: 
         """
+        try:
+            num = int(num)
+        except ValueError as _:
+            pass
         return self.get('BODY', {}).get(num)
+
+    def get_fetched_mime_part(self, num):
+        """
+        
+        :return: 
+        """
+        part_data = self.get_fetched_part(num)
+        if not self.bodystructure:
+            raise ImapRuntimeError('You forgot to load bodystructure')
+        part_info = self.bodystructure.find_by_mime_id(str(num))
+
+        part = EmailMessage(policy.strict)
+        part.set_charset(part_info.charset)
+        if part_info.is_multipart():
+            part.set_boundary(part_info.boundary)
+        #part.set_default_type(part_info.content_part)
+        #part.set_type(part_info.content_part)
+        # <'bytes'>, maintype, subtype, cte="base64", disposition=None,
+
+        part.set_payload(self.decode(part_info, part_data))
+        print(part['content-transfer-encoding'])
+        #print(decode_b(part_data))
+        #print(part.get_payload(decode=True))
+        return part
+
+    def decode(self, part_info, data):
+        if part_info.encoding == 'quoted-printable':
+            return quopri.decodestring(data)
+        elif part_info.encoding == 'base64':
+            # XXX: this is a bit of a hack; decode_b should probably be factored
+            # out somewhere, but I haven't figured out where yet.
+            value, defects = decode_b(b''.join(data.splitlines()))
+            return value
+        elif part_info.encoding in ('x-uuencode', 'uuencode', 'uue', 'x-uue'):
+            in_file = BytesIO(data)
+            out_file = BytesIO()
+            try:
+                uu.decode(in_file, out_file, quiet=True)
+                return out_file.getvalue()
+            except uu.Error:
+                # Some decoding problem
+                return data
 
     def dump(self) -> Generator[Any, Any, Any]:
         """

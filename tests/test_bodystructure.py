@@ -13,34 +13,34 @@ from pymaillib.imap.entity.envelope import Envelope
 class BodyStructureTest(unittest.TestCase):
 
     def test_simple(self):
-        data = [b'text', b'plain', [b'charset', b'US-ASCII'], None, None,
-                b'quoted-printable', 388, 20, None, [b'inline', None], None]
+        data = ['text', 'plain', ['charset', 'US-ASCII'], None, None,
+                'quoted-printable', 388, 20, None, ['inline', None], None]
 
         obj = BodyStructure.build(data)
         self.assertFalse(obj.is_multipart())
         self.assertIsInstance(obj.part, SimpleBodyPart)
-        self.assertEqual(obj.part.content_part, b'text/plain')
-        self.assertEqual(obj.part.encoding, b'quoted-printable')
-        self.assertEqual(obj.part.charset, b'US-ASCII')
+        self.assertEqual(obj.part.content_part, 'text/plain')
+        self.assertEqual(obj.part.encoding, 'quoted-printable')
+        self.assertEqual(obj.part.charset, 'US-ASCII')
 
     def test_simple_non_text(self):
-        data = [b'application', b'scalix-properties', None, None,
-                        None, b'7bit', 1671, None, None, None, None]
+        data = ['application', 'scalix-properties', None, None,
+                        None, '7bit', 1671, None, None, None, None]
 
         obj = BodyStructure.build(data)
         self.assertFalse(obj.is_multipart())
         self.assertIsInstance(obj.part, SimpleBodyPart)
         self.assertEqual(obj.part.content_part,
-                         b'application/scalix-properties')
-        self.assertEqual(obj.part.encoding, b'7bit')
+                         'application/scalix-properties')
+        self.assertEqual(obj.part.encoding, '7bit')
 
     def test_alternative(self):
-        data = [[b'text', b'plain', [b'charset', b'iso-8859-1'], None, None,
-                 b'quoted-printable', 5845, 261, None, None, None],
-                [b'text', b'html', [b'charset', b'iso-8859-1'], None, None,
-                 b'quoted-printable', 35380, 1158, None, None, None],
-                b'alternative',
-                [b'boundary', b'----=_Part_310_216476006.1412669886901'],
+        data = [['text', 'plain', ['charset', 'iso-8859-1'], None, None,
+                 'quoted-printable', 5845, 261, None, None, None],
+                ['text', 'html', ['charset', 'iso-8859-1'], None, None,
+                 'quoted-printable', 35380, 1158, None, None, None],
+                'alternative',
+                ['boundary', '----=_Part_310_216476006.1412669886901'],
                 None, None]
 
         obj = BodyStructure.build(data)
@@ -50,25 +50,25 @@ class BodyStructureTest(unittest.TestCase):
         self.assertIsNotNone(obj.part.boundary)
 
     def test_mixed_one_attachment(self):
-        data = [[[b'text', b'plain', [b'charset', b'us-ascii'], None, None,
-                  b'7bit', 13, 0, None, None, None],
-                 [b'text', b'html', [b'charset', b'us-ascii'], None, None,
-                  b'7bit', 177, 0, None, None, None], b'alternative',
-                 [b'boundary', b'----=_Part_1_30234291.1448461057725'],
+        data = [[['text', 'plain', ['charset', 'us-ascii'], None, None,
+                  '7bit', 13, 0, None, None, None],
+                 ['text', 'html', ['charset', 'us-ascii'], None, None,
+                  '7bit', 177, 0, None, None, None], 'alternative',
+                 ['boundary', '----=_Part_1_30234291.1448461057725'],
                  None, None],
-                [b'application', b'pdf',
-                 [b'name',
-                  b'=?UTF-8?Q?enjoy_-_=D0=B4?= =?UTF-8?Q?=D0=B0=D1=82=D0'
-                  b'=B0_=D0=BD=D0=B0=D0=B8=D0=BC=D0=B5=D0=BD?= =?UTF-8?Q'
-                  b'?=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D0=B5_-_Sheet1.pdf?='],
-                 None, None, b'base64', 38366, None,
-                 [b'attachment',
-                  [b'filename',
-                   b'=?UTF-8?Q?enjoy_-_=D0=B4=D0=B0=D1=82=D0=B0_=D0=BD=D0'
-                   b'=B0=D0=B8=D0=BC=D0=B5=D0=BD=D0=BE=D0=B2=D0=B0=D0=BD='
-                   b'D0=B8=D0=B5_-_Sheet1.pdf?=']], None],
-                b'mixed',
-                [b'boundary', b'----=_Part_0_28145835.1448461057725'], None,
+                ['application', 'pdf',
+                 ['name',
+                  '=?UTF-8?Q?enjoy_-_=D0=B4?= =?UTF-8?Q?=D0=B0=D1=82=D0'
+                  '=B0_=D0=BD=D0=B0=D0=B8=D0=BC=D0=B5=D0=BD?= =?UTF-8?Q'
+                  '?=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D0=B5_-_Sheet1.pdf?='],
+                 None, None, 'base64', 38366, None,
+                 ['attachment',
+                  ['filename',
+                   '=?UTF-8?Q?enjoy_-_=D0=B4=D0=B0=D1=82=D0=B0_=D0=BD=D0'
+                   '=B0=D0=B8=D0=BC=D0=B5=D0=BD=D0=BE=D0=B2=D0=B0=D0=BD='
+                   'D0=B8=D0=B5_-_Sheet1.pdf?=']], None],
+                'mixed',
+                ['boundary', '----=_Part_0_28145835.1448461057725'], None,
                 None]
 
         obj = BodyStructure.build(data)
@@ -80,38 +80,38 @@ class BodyStructureTest(unittest.TestCase):
         self.assertIsNotNone(obj.part.boundary)
 
     def test_mixed_two_attachments(self):
-        data = [[[b'text', b'plain', [b'charset', b'us-ascii'], None, None,
-                  b'7bit', 6, 0, None, None, None], [b'text', b'html',
-                                                     [b'charset', b'us-ascii'],
-                                                     None, None, b'7bit', 170,
+        data = [[['text', 'plain', ['charset', 'us-ascii'], None, None,
+                  '7bit', 6, 0, None, None, None], ['text', 'html',
+                                                     ['charset', 'us-ascii'],
+                                                     None, None, '7bit', 170,
                                                      0,
                                                      None, None, None],
-                 b'alternative', [b'boundary',
-                                  b'----=_Part_1_8099118.1448518502536'], None,
+                 'alternative', ['boundary',
+                                  '----=_Part_1_8099118.1448518502536'], None,
                  None],
-                [b'application', b'pdf',
-                    [b'name',
-                     b'=?UTF-8?Q?enjoy_-_=D0=B4?= =?UTF-8?Q?=D0=B0=D1=82=D0'
-                     b'=B0_=D0=BD=D0=B0=D0=B8=D0=BC=D0=B5=D0=BD?= =?UTF-8?Q'
-                     b'?=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D0=B5_-_Sheet1.pdf?='],
-                    None, None, b'base64', 38366, None,
-                    [b'attachment',
-                     [b'filename',
-                      b'=?UTF-8?Q?enjoy_-_=D0=B4=D0=B0=D1=82=D0=B0_=D0=BD=D0'
-                      b'=B0=D0=B8=D0=BC=D0=B5=D0=BD=D0=BE=D0=B2=D0=B0=D0=BD='
-                      b'D0=B8=D0=B5_-_Sheet1.pdf?=']], None],
-                [b'application',
-                 b'vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                 [b'name',
-                  b'=?UTF-8?B?ZW5qb3kgLSDQtNCw0YLQsCDQvdCw?= =?UTF-8?B?0'
-                  b'LjQvNC10L3QvtCy0LDQvdC40LUueGxzeA==?='],
-                 None, None, b'base64', 6788, None,
-                 [b'attachment',
-                  [b'filename',
-                   b'=?UTF-8?Q?enjoy_-_=D0=B4=D0=B0=D1=82=D0=B0_=D0=BD=D0'
-                   b'=B0=D0=B8=D0=BC=D0=B5=D0=BD=D0=BE=D0=B2=D0=B0=D0=BD='
-                   b'D0=B8=D0=B5.xlsx?=']], None], b'mixed',
-                [b'boundary', b'----=_Part_0_4236961.1448518502536'], None,
+                ['application', 'pdf',
+                    ['name',
+                     '=?UTF-8?Q?enjoy_-_=D0=B4?= =?UTF-8?Q?=D0=B0=D1=82=D0'
+                     '=B0_=D0=BD=D0=B0=D0=B8=D0=BC=D0=B5=D0=BD?= =?UTF-8?Q'
+                     '?=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D0=B5_-_Sheet1.pdf?='],
+                    None, None, 'base64', 38366, None,
+                    ['attachment',
+                     ['filename',
+                      '=?UTF-8?Q?enjoy_-_=D0=B4=D0=B0=D1=82=D0=B0_=D0=BD=D0'
+                      '=B0=D0=B8=D0=BC=D0=B5=D0=BD=D0=BE=D0=B2=D0=B0=D0=BD='
+                      'D0=B8=D0=B5_-_Sheet1.pdf?=']], None],
+                ['application',
+                 'vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                 ['name',
+                  '=?UTF-8?B?ZW5qb3kgLSDQtNCw0YLQsCDQvdCw?= =?UTF-8?B?0'
+                  'LjQvNC10L3QvtCy0LDQvdC40LUueGxzeA==?='],
+                 None, None, 'base64', 6788, None,
+                 ['attachment',
+                  ['filename',
+                   '=?UTF-8?Q?enjoy_-_=D0=B4=D0=B0=D1=82=D0=B0_=D0=BD=D0'
+                   '=B0=D0=B8=D0=BC=D0=B5=D0=BD=D0=BE=D0=B2=D0=B0=D0=BD='
+                   'D0=B8=D0=B5.xlsx?=']], None], 'mixed',
+                ['boundary', '----=_Part_0_4236961.1448518502536'], None,
                 None]
         obj = BodyStructure.build(data)
         self.assertTrue(obj.is_multipart())
@@ -124,41 +124,41 @@ class BodyStructureTest(unittest.TestCase):
         self.assertIsNotNone(obj.part.boundary)
 
     def test_mixed_message_rfc822(self):
-        data = [[[b'text', b'plain',
-                  [b'charset', b'utf-8', b'format', b'flowed'], None,
-                  None, b'quoted-printable', 555, 19, None, None, None, None],
-                 [b'text', b'html', [b'charset', b'utf-8'], None, None,
-                  b'quoted-printable', 1797, 53, None, None, None, None],
-                 b'alternative',
-                 [b'boundary', b'------------080109040200030600090402'],
+        data = [[['text', 'plain',
+                  ['charset', 'utf-8', 'format', 'flowed'], None,
+                  None, 'quoted-printable', 555, 19, None, None, None, None],
+                 ['text', 'html', ['charset', 'utf-8'], None, None,
+                  'quoted-printable', 1797, 53, None, None, None, None],
+                 'alternative',
+                 ['boundary', '------------080109040200030600090402'],
                  None, None, None],
-                [b'message', b'rfc822', [b'name', b'ForwardedMessage.eml'],
-                 None, None, b'7bit', 19739,
-                 [b'Tue, 7 Oct 2014 09:25:38 -0400',
-                    b'Re: AW: Re: xxx xxx xxx xxx xxxx',
-                  [[b'xx xx', None, b'xx', b'xx.com']],
-                  [[b'xxx xxx', None, b'xxx', b'xxx.com']],
-                  [[b'xx xxx', None, b'xxx', b'xxx.com']],
-                  [[b'xxx xxx', None, b'xxx.xxx',b'xx.com'],
-                   [b'xx xx', None, b'ffff', b'xx.com'],
-                   [b'xx xx', None, b'xx.xxx', b'xx.com'],
-                   [b'xxx xxx', None, b'xxx', b'xxx.com']],
-                  [[b'xxx xxx', None, b'xxx', b'xxx.com'],
-                   [b'xxx xx', None, b'xxx.xxx', b'xxx.com']],
-                  None, None, b'<4w7ndjmiuuxmec1totxia237.1412688318967@e'
-                              b'mail.android.com>'],
-                 [[b'text', b'plain', [b'charset', b'utf-8'], None, None,
-                   b'quoted-printable', 5744, 173, None, None, None, None],
-                  [b'text', b'html', [b'charset', b'utf-8'], None, None,
-                   b'quoted-printable', 11866, 156, None, None, None,  None],
-                  b'alternative', [b'boundary', b'--_com.android.email_84'
-                                                b'7787723214625'],
-                  None, None, None], 382, None, [b'attachment',
-                                                 [b'filename',
-                                                  b'ForwardedMessage.eml']],
+                ['message', 'rfc822', ['name', 'ForwardedMessage.eml'],
+                 None, None, '7bit', 19739,
+                 ['Tue, 7 Oct 2014 09:25:38 -0400',
+                    'Re: AW: Re: xxx xxx xxx xxx xxxx',
+                  [['xx xx', None, 'xx', 'xx.com']],
+                  [['xxx xxx', None, 'xxx', 'xxx.com']],
+                  [['xx xxx', None, 'xxx', 'xxx.com']],
+                  [['xxx xxx', None, 'xxx.xxx','xx.com'],
+                   ['xx xx', None, 'ffff', 'xx.com'],
+                   ['xx xx', None, 'xx.xxx', 'xx.com'],
+                   ['xxx xxx', None, 'xxx', 'xxx.com']],
+                  [['xxx xxx', None, 'xxx', 'xxx.com'],
+                   ['xxx xx', None, 'xxx.xxx', 'xxx.com']],
+                  None, None, '<4w7ndjmiuuxmec1totxia237.1412688318967@e'
+                              'mail.android.com>'],
+                 [['text', 'plain', ['charset', 'utf-8'], None, None,
+                   'quoted-printable', 5744, 173, None, None, None, None],
+                  ['text', 'html', ['charset', 'utf-8'], None, None,
+                   'quoted-printable', 11866, 156, None, None, None,  None],
+                  'alternative', ['boundary', '--_com.android.email_84'
+                                                '7787723214625'],
+                  None, None, None], 382, None, ['attachment',
+                                                 ['filename',
+                                                  'ForwardedMessage.eml']],
                  None, None
-                 ], b'mixed',
-                [b'boundary', b'------------000605010102080309050007'],
+                 ], 'mixed',
+                ['boundary', '------------000605010102080309050007'],
                 None, None, None]
 
         obj = BodyStructure.build(data)

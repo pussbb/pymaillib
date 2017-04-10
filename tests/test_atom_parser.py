@@ -134,7 +134,7 @@ class AtomParserTest(unittest.TestCase):
         self.assertIsInstance(msg['ENVELOPE'].from_, AddressList)
 
         self.assertIsNotNone(msg['FLAGS'])
-        self.assertIn(b'\\Seen', msg['FLAGS'])
+        self.assertIn('\\Seen', msg['FLAGS'])
 
     def test_parse_line_with_literal(self):
         data = [(b'1 (FLAGS (\\Seen) BODY[] {812}',
@@ -464,7 +464,7 @@ class AtomParserTest(unittest.TestCase):
         ]
         items = self.parse_items(lines)
         self.assertEqual(items[0]['FLAGS'],
-                          [b'\\Seen', b'$Forwarded', b'\\X-Forwarded'])
+                          ['\\Seen', '$Forwarded', '\\X-Forwarded'])
 
     def test_response_tokenizer(self):
         lines = [

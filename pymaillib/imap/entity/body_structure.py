@@ -41,12 +41,11 @@ class SimpleBodyPart(SlotBasedImapEntity):
         args, _ = self._bulk_append(self.__rfc_default_fields(), list(args), {})
 
         self.attributes = list_to_dict(self.attributes)
-
         self.content_part = build_content_part(self.main_type, self.subtype)
-        self.charset = self.attributes.pop(b'charset', None)
-        self.name = decode_parameter_value(self.attributes.pop(b'name', None))
+        self.charset = self.attributes.pop('charset', None)
+        self.name = decode_parameter_value(self.attributes.pop('name', None))
 
-        self.mime_id = mime_id
+        self.mime_id = str(mime_id)
         self.filename = None
         self.md5 = None
         self._init_rest(*args)
@@ -71,14 +70,21 @@ class SimpleBodyPart(SlotBasedImapEntity):
             self.md5 = md5_or_list
         else:
             value = list_to_dict(md5_or_list)
-            if value.get(b'attachment'):
+            if value.get('attachment'):
                 self.filename = decode_parameter_value(
-                    value[b'attachment'].pop(b'filename', None)
+                    value['attachment'].pop('filename', None)
                 )
             self.attributes = {**self.attributes, **value}
         self.disposition = list_to_dict(disposition)
         self.language = language
         self.location = location
+
+    def is_multipart(self) -> bool:
+        """Is this part is multipart
+
+        :return: 
+        """
+        return isinstance(self, MultiPartBodyPart)
 
 
 class MessageRFC822BodPart(SimpleBodyPart):
@@ -100,6 +106,7 @@ class MessageRFC822BodPart(SimpleBodyPart):
         self.envelope = Envelope.from_list(envelope)
         self.bodystructure = BodyStructure.build(bodystructure, self.mime_id,
                                                  True)
+        self.mime_id = str(self.mime_id)
         self.line_count = line_count
         super()._init_rest(*args)
 
@@ -115,15 +122,15 @@ class MultiPartBodyPart(SimpleBodyPart):
 
     def __init__(self, subtype: bytes, attributes=None, disposition=None,
                  language=None, location=None, mime_id=None, parts=None):
-        self.main_type = b'multipart'
+        self.main_type = 'multipart'
         self.subtype = subtype
         self.attributes = list_to_dict(attributes)
-        self.boundary = self.attributes.pop(b'boundary', None)
+        self.boundary = self.attributes.pop('boundary', None)
         self.disposition = disposition
         self.language = language
         self.location = location
         self.content_part = build_content_part(self.main_type, subtype)
-        self.mime_id = mime_id
+        self.mime_id = str(mime_id)
         self._parts = parts
 
     @property
@@ -224,7 +231,7 @@ class BodyStructure(ImapEntity):
                 #  simple message
                 if index_ == 0 and not recursive_:
                     index_ = 1
-                if arg[1].lower() == b'rfc822':
+                if arg[1].lower() == 'rfc822':
                     part = MessageRFC822BodPart(*arg, mime_id=index_)
                 else:
                     part = SimpleBodyPart(*arg, mime_id=index_)
