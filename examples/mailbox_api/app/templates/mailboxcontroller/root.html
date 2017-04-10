@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Folders</title>
+</head>
+<body>
+    {# a comment  #}
+    <ul>
+    {% for item in folders.values() %}
+        <li><a href="{{ url_for('MailboxController:folder', folder=item.direct_ref) }} ">
+            {{ item.name }}
+        </a></li>
+    {% endfor %}
+    </ul>
+
+
+</body>
+</html>

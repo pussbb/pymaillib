@@ -48,3 +48,6 @@ wbxmldist
 pyimapparser.cpp
 dovecot_utils/build/
 dovecot_utils.c
+*/.idea
+/examples/*/flask_app
+/examples/*/pymaillib

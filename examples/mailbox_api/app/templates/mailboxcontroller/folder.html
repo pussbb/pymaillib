@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Messages</title>
+</head>
+<body>
+    {# a comment  #}
+    <ul>
+    {% for item in data %}
+        <li><a href="{{ url_for('MailboxController:message', folder=item.folder.direct_ref, msg_id=item.uid) }} ">
+            {{ item.envelope.subject }}
+        </a></li>
+    {% endfor %}
+    </ul>
+
+
+</body>
+</html>
