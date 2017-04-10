@@ -22,7 +22,41 @@ from ..exceptions import ImapRuntimeError
 from . import ImapEntity
 
 
+def decode_part(part_info, data):
+    """Copy/paste from email module because if base64 string does not contains
+    '==' if raise a Defect but value is decoded, but you will get original
+     message.
+    
+    :param part_info: 
+    :param data: 
+    :return: 
+    """
+    if part_info.encoding == 'quoted-printable':
+        return quopri.decodestring(data)
+    elif part_info.encoding == 'base64':
+        # XXX: this is a bit of a hack; decode_b should probably be factored
+        # out somewhere, but I haven't figured out where yet.
+        value, defects = decode_b(b''.join(data.splitlines()))
+        for defect in defects:
+            if isinstance(defect, InvalidBase64CharactersDefect):
+                return b''.join([body_decode(line)
+                                 for line in data.splitlines()])
+        return value
+    elif part_info.encoding in ('x-uuencode', 'uuencode', 'uue', 'x-uue'):
+        in_file = BytesIO(data)
+        out_file = BytesIO()
+        try:
+            uu.decode(in_file, out_file, quiet=True)
+            return out_file.getvalue()
+        except uu.Error:
+            # Some decoding problem
+            return data
+
+
 class EmailMessage(ImapLibEmailMessage, ImapEntity):
+    """
+    
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__uid = 0
@@ -213,31 +247,14 @@ class ImapFetchedItem(dict, ImapEntity):
         part.set_type(part_info.content_part)
         # <'bytes'>, maintype, subtype, cte="base64", disposition=None,
 
-        part.set_content(part_data, maintype=part_info.main_type, subtype=part_info.subtype, cte=part_info.encoding)
+        part.set_content(part_data, maintype=part_info.main_type,
+         subtype=part_info.subtype, cte=part_info.encoding)
         print(part['content-transfer-encoding'])
         #print(decode_b(part_data))
         print(part.get_content())
         """
 
         return part_info, part_data
-
-    def decode(self, part_info, data):
-        if part_info.encoding == 'quoted-printable':
-            return quopri.decodestring(data)
-        elif part_info.encoding == 'base64':
-            # XXX: this is a bit of a hack; decode_b should probably be factored
-            # out somewhere, but I haven't figured out where yet.
-            value, defects = decode_b(b''.join(data.splitlines()))
-            return value
-        elif part_info.encoding in ('x-uuencode', 'uuencode', 'uue', 'x-uue'):
-            in_file = BytesIO(data)
-            out_file = BytesIO()
-            try:
-                uu.decode(in_file, out_file, quiet=True)
-                return out_file.getvalue()
-            except uu.Error:
-                # Some decoding problem
-                return data
 
     def dump(self) -> Generator[Any, Any, Any]:
         """

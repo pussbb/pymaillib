@@ -48,4 +48,6 @@ class ImapSearchCommand(ImapBaseCommand):
         if not data:
             return []
         for uid in data[0].split(b' '):
+            if not uid:
+                continue
             yield int(uid)
