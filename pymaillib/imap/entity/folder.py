@@ -27,6 +27,10 @@ class ImapFolder(ImapEntity):
         self.__name = name
         #  hierarchy delimiter
         self.__delimiter = path
+        #
+        noselect = attributes.pop(b'\\NoSelect', None)
+        if noselect is not None:
+            attributes[b'\\Noselect'] = b''
         self.__attributes = attributes
         self.__stats = {}
 
@@ -91,7 +95,7 @@ class ImapFolder(ImapEntity):
 
         :return:
         """
-        return b'Noselect' not in self.__attributes
+        return b'\\Noselect' not in self.__attributes
 
     @property
     def stats(self):
