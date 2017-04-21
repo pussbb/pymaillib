@@ -32,7 +32,7 @@ from .commands.unselect import ImapUnSelectFolderCommand
 from .commands.wrapper import ImapLibWrapper
 from .constants import IMAP4REV1_CAPABILITY_KEYS, IMAP4_COMMANDS
 from .entity.folder import ImapFolder
-from .entity.server import Namespaces
+from .entity.server import Namespaces, ImapNamespace
 from .entity.email_message import EmailMessage
 
 from .exceptions.base import ImapObjectNotFound, ImapIllegalStateException, \
@@ -274,12 +274,17 @@ class ImapClient(object):
         return IMAP4SSL(host=self.host, port=self.port, keyfile=self.keyfile,
                         certfile=self.certfile, timeout=self.timeout)
 
-    def folders(self) -> Iterable[ImapFolder]:
+    def folders(self, directory: str='""', pattern: str ='*',
+                namespace: ImapNamespace=None) -> Iterable[ImapFolder]:
         """Get folder list from IMAP server. Executes LIST command at IMAP
         server.
         :return: list with ImapFolders
         """
-        yield from self._simple_command(ImapFolderListCommand())
+        if namespace and namespace.name:
+            directory = '"{}"'.format(namespace.name)
+        yield from self._simple_command(
+            ImapFolderListCommand(directory, pattern)
+        )
 
     def folder_stats(self, folder: ImapFolder) -> dict:
         """Get additional information for an folder which is not available
@@ -383,13 +388,12 @@ class ImapClient(object):
         """
         return self._simple_command(ImapSelectFolderCommand(folder))
 
-    def fetch(self, folder: ImapFolder, query: FetchQueryBuilder):
+    def fetch(self, query: FetchQueryBuilder):
         """Retries messages from a folder
 
         :param folder: ImapFolder object
         :param query: FetchQueryBuilder object
         """
-        self.select_folder(folder)
         yield from self._simple_command(ImapFetchCommand(query))
 
     def store(self, query: StoreQueryBuilder):

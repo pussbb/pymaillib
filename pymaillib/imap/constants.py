@@ -32,7 +32,7 @@ IMAP4_OK_RESULT = 'OK'
 IMAP4_NO_RESULT = 'NO'
 IMAP4_BAD_REQUEST = 'BAD'
 
-IMAP4_FOLDER_SPECIAL_CHARS = re.compile(b'([\s,/"]+)')
+IMAP4_FOLDER_SPECIAL_CHARS = re.compile(b'([\s,/"_)(\[\]]+)')
 
 #  NOT USED FOR NOW
 IMAP_SPECIAL_FLAGS = [

@@ -51,7 +51,7 @@ class ImapFolder(ImapEntity):
         return self.__delimiter
 
     def parent(self):
-        """returns instance of ImapFolder wirh parent path
+        """returns instance of ImapFolder with parent path
 
         """
         name = ''.join(self.name.split(self.delimiter)[:-1])

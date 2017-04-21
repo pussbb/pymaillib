@@ -43,6 +43,10 @@ class UserMailbox(object):
         self.__auth_data = UserCredentials(username, password)
         self.__config = config
 
+    def clone(self) -> 'UserMailbox':
+        return UserMailbox(self.__auth_data.username,
+                           self.__auth_data.password, self.__config)
+
     @property
     def auth_data(self) -> UserCredentials:
         """Get credentiols for an instance

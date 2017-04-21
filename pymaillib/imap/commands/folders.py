@@ -20,7 +20,7 @@ class ImapFolderListCommand(ImapBaseCommand):
 
     _COMMAND = 'LIST'
 
-    def __init__(self, directory='""', pattern='*'):
+    def __init__(self, directory: str='""', pattern:str ='*'):
         self.__directory = directory
         self.__pattern = pattern
 

@@ -73,6 +73,8 @@ def build_sequence(data: Any):
             continue
         if ':' in item:
             literals.append(item)
+        elif isinstance(item, (tuple, set, list)):
+            return build_sequence(item)
         else:
             raise Exception(item)
     return ','.join(literals + build_numeric_sequence(numeric))

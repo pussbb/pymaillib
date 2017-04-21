@@ -71,7 +71,8 @@ class Namespaces(SlotBasedImapEntity):
             if not items:
                 return res
             for name, separator in items:
-                res.append(ImapNamespace(name, separator))
+                res.append(ImapNamespace(name=name.decode(),
+                                         separator=separator.decode()))
             return res
 
         return Namespaces(private=to_namespace_list(private),
