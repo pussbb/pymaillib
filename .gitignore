@@ -51,3 +51,4 @@ dovecot_utils.c
 */.idea
 /examples/*/flask_app
 /examples/*/pymaillib
+/examples/*/*.ini
