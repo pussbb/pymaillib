@@ -3,11 +3,11 @@
 
 """
 import concurrent.futures
+import imaplib
 import warnings
 from pprint import pprint
 from typing import List, Tuple, Dict
 
-from pymaillib.imap.query.builders.store import StoreQueryBuilder
 from pymaillib.imap.entity.email_message import ImapFetchedItem
 from pymaillib.imap.query.builders.fetch import FetchQueryBuilder
 from pymaillib.imap.client import ImapClient, ImapFolder
@@ -145,37 +145,34 @@ def fill_mailbox(source_mailbox, dest_mailbox, folder):
 
     msgs_diff = set(from_messages).difference(set(to_messages))
     count = 0
-    for msg_id in msgs_diff:
-        msg = from_messages.get(msg_id)
-        if not msg:
-            warnings.warn('Oopps not found {}'.format(msg_id), RuntimeWarning)
-        with source_mailbox.imap() as imap:
-            fp = FetchQueryBuilder(uids=msg.uid).fetch_body_structure() \
-                .fetch_rfc822().fetch_flags()
-            msg = list(imap.fetch(fp))[-1]
+    with source_mailbox.imap() as from_imap:
+        with dest_mailbox.imap() as dest_imap:
+            dest_imap.select_folder(folder)
+            for msg_id in msgs_diff:
+                msg = from_messages.get(msg_id)
+                if not msg:
+                    warnings.warn('Oopps not found {}'.format(msg_id),
+                                  RuntimeWarning)
+                    continue
 
-            rfc822 = msg.rfc822
-            if not rfc822['X-Scalix-Class']:
-                message_class = 'IPM.Note'
-                for part in msg.bodystructure:
-                    if part.content_part == 'text/calendar':
-                        message_class = 'IPM.Appointment'
-                        break
-                rfc822.add_header('X-Scalix-Class', message_class)
+                fp = FetchQueryBuilder(uids=msg.uid).fetch_body_structure() \
+                    .fetch_rfc822().fetch_flags()
+                msg = list(from_imap.fetch(fp))[-1]
 
-            with dest_mailbox.imap() as imap2:
-                imap2.select_folder(folder)
-                new_msg = imap2.append_message(rfc822, folder)
-                query = StoreQueryBuilder(uids=new_msg.uid)
-                for flag in msg.flags:
-                    query.add(flag)
-                query.silent = True
-                imap2.store(query)
-            count += 1
+                rfc822 = msg.rfc822
+                if not rfc822['X-Scalix-Class']:
+                    message_class = 'IPM.Note'
+                    for part in msg.bodystructure:
+                        if part.content_part == 'text/calendar':
+                            message_class = 'IPM.Appointment'
+                            break
+                    rfc822.add_header('X-Scalix-Class', message_class)
+                dest_imap.append_message(rfc822, folder, msg.flags)
+                count += 1
     return count
 
 
-with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
     # Start the load operations and mark each future with its URL
     future_to_url = {executor.submit(fill_mailbox, from_mailbox.clone(),
                                      to_mailbox.clone(), folder): folder

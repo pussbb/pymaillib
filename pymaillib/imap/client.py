@@ -14,6 +14,7 @@ from traceback import print_exception
 
 from typing import Iterable, Any
 
+from imap.utils import is_iterable
 from .query.builders.search import SearchQueryBuilder
 from .query.builders.store import StoreQueryBuilder
 from .query.builders.fetch import FetchQueryBuilder
@@ -443,15 +444,18 @@ class ImapClient(object):
         """
         return self._simple_command(ImapLibWrapper(func, *args, **kwargs))
 
-    def append_message(self, message: EmailMessage, folder:ImapFolder) \
-            -> EmailMessage:
+    def append_message(self, message: EmailMessage, folder: ImapFolder,
+                       flags:str =None) -> EmailMessage:
         """
         
         :param message: 
         :param folder: 
         :return: 
         """
-        return self._simple_command(AppendMessageCommand(message, folder))
+        if is_iterable(flags):
+            flags = '({})'.format(' '.join([str(item) for item in flags]))
+        return self._simple_command(AppendMessageCommand(message, folder,
+                                                         flags))
 
     def update_message(self, message: EmailMessage, folder:ImapFolder) \
             -> EmailMessage:
