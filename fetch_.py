@@ -41,6 +41,7 @@ with mailbox.imap() as client:
         # b'\\X-Total-Msgs': b'19161', b'\\X-ModDate': b'20170407112206',
         # ....
         print(folder)
+        print(folder.selectable)
 
     # [None]
     print(client.recent())
