@@ -101,7 +101,7 @@ if folder_diff:
 
             for top_folder in reversed(top_level):
                 if not imap.folder_exists(top_folder):
-                    imap.create_folder(top_folder.name, top_folder.parent())
+                    imap.create_folder(top_folder.name)
 
 
 def get_folder_messages(folder:ImapFolder, imap:ImapClient) -> \
@@ -188,7 +188,7 @@ def fill_mailbox(source_mailbox, dest_mailbox, folder:ImapFolder):
     return count
 
 
-with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
     # Start the load operations and mark each future with its URL
     future_to_url = {executor.submit(fill_mailbox, from_mailbox.clone(),
                                      to_mailbox.clone(), folder): folder
