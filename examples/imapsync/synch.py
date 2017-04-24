@@ -8,7 +8,7 @@ import warnings
 from pprint import pprint
 from typing import List, Tuple, Dict
 
-from pymaillib.imap.entity.email_message import ImapFetchedItem
+from pymaillib.imap.entity.email_message import ImapFetchedItem, EmailMessage
 from pymaillib.imap.query.builders.fetch import FetchQueryBuilder
 from pymaillib.imap.client import ImapClient, ImapFolder
 from pymaillib.imap.entity.server import ImapNamespace, Namespaces
@@ -94,18 +94,14 @@ if folder_diff:
         for folder_name in iter(folder_diff):
             folder = from_folders.get(folder_name)
             parent = folder.parent()
-            top_level = []
+            top_level = [folder]
             while parent:
                 top_level.append(parent)
                 parent = parent.parent()
+
             for top_folder in reversed(top_level):
-                try:
-                    folder_diff.remove(top_folder.name)
-                except KeyError as _:
-                    pass
-                if top_folder.name not in to_folders:
+                if not imap.folder_exists(top_folder):
                     imap.create_folder(top_folder.name, top_folder.parent())
-            imap.create_folder(folder.name)
 
 
 def get_folder_messages(folder:ImapFolder, imap:ImapClient) -> \
@@ -116,18 +112,37 @@ def get_folder_messages(folder:ImapFolder, imap:ImapClient) -> \
     :param imap: 
     :return: 
     """
-
+    res = {}
+    if not folder.total:
+        return res
     data = range(1, folder.total)
     n = 200  # by chunks
-    res = {}
-    for item in [data[i:i + n] for i in range(0, len(data), n)]:
+
+    for item in [data[i:i + n] for i in range(1, len(data), n)]:
         fp = FetchQueryBuilder(list(item)).fetch_envelope()
         for item in imap.fetch(fp):
             res[item.envelope.message_id] = item
     return res
 
 
-def fill_mailbox(source_mailbox, dest_mailbox, folder):
+def guess_email_class(email: EmailMessage) -> str :
+    """
+    
+    :param email: 
+    :return: 
+    """
+    for part in email.walk():
+        if part.get_content_type() == 'text/calendar':
+            return 'IPM.Appointment'
+    else:
+        return 'IPM.Note'
+
+
+def fill_mailbox(source_mailbox, dest_mailbox, folder:ImapFolder):
+    if not folder.selectable:
+        warnings.warn('Folder {} is not selectable'.format(folder.name),
+                      RuntimeWarning)
+        return
     from_messages = {}
     with source_mailbox.imap() as imap:
         imap.update_folder_info(folder)
@@ -138,36 +153,37 @@ def fill_mailbox(source_mailbox, dest_mailbox, folder):
         imap.update_folder_info(folder)
         to_messages = get_folder_messages(folder, imap)
 
-    try:
-        dest_mailbox.close()
-    except Exception as _:
-        pass
-
     msgs_diff = set(from_messages).difference(set(to_messages))
+
     count = 0
+    print('New messages', msgs_diff)
+    if not msgs_diff:
+        return count
     with source_mailbox.imap() as from_imap:
-        with dest_mailbox.imap() as dest_imap:
+        with dest_mailbox.imap(True) as dest_imap:
             dest_imap.select_folder(folder)
             for msg_id in msgs_diff:
                 msg = from_messages.get(msg_id)
                 if not msg:
-                    warnings.warn('Oopps not found {}'.format(msg_id),
+                    warnings.warn('Oops not found {}'.format(msg_id),
                                   RuntimeWarning)
                     continue
 
-                fp = FetchQueryBuilder(uids=msg.uid).fetch_body_structure() \
-                    .fetch_rfc822().fetch_flags()
+                fp = FetchQueryBuilder(uids=msg.uid).fetch_rfc822()\
+                    .fetch_flags()
                 msg = list(from_imap.fetch(fp))[-1]
+                if not msg:
+                    warnings.warn('Oops not found {}'.format(msg_id),
+                                  RuntimeWarning)
+                    continue
 
                 rfc822 = msg.rfc822
                 if not rfc822['X-Scalix-Class']:
-                    message_class = 'IPM.Note'
-                    for part in msg.bodystructure:
-                        if part.content_part == 'text/calendar':
-                            message_class = 'IPM.Appointment'
-                            break
-                    rfc822.add_header('X-Scalix-Class', message_class)
+                    rfc822.add_header('X-Scalix-Class',
+                                      guess_email_class(rfc822))
+                print('Migrate message UID', msg.uid)
                 dest_imap.append_message(rfc822, folder, msg.flags)
+                dest_imap.check()
                 count += 1
     return count
 

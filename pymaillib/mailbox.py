@@ -59,13 +59,17 @@ class UserMailbox(object):
         return self.__auth_data.username == auth_data.username and \
                self.__auth_data.password == auth_data.password
 
-    def imap(self) -> ImapClient:
+    def imap(self, unselect: bool=False) -> ImapClient:
         """Creates or returns cached instance if ImapClient class
 
         :return: IMapClient instance
         """
-        if self.__imap_store:
+        if self.__imap_store and self.__imap_store.opened:
+            if unselect:
+                with self.__imap_store as imap:
+                    imap.release_current_folder()
             return self.__imap_store
+
         self.__imap_store = self.get_imap_client()
         return self.__imap_store
 

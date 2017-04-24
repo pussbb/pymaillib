@@ -62,9 +62,13 @@ class ImapClient(object):
         self._count = 0
         self.__settings = settings
         self.__server_info = None
+        self.__auth_data = auth_data
+        self._init_connection()
+
+    def _init_connection(self):
         self.__imap_obj = self.__init_imap_obj()
         self._update_capabilities(
-            ImapLoginCommand(auth_data).run(self.__imap_obj)
+            ImapLoginCommand(self.__auth_data).run(self.__imap_obj)
         )
         self._update_server_info(self.__imap_obj)
         self._update_capabilities(self.__imap_obj.capabilities)
@@ -75,7 +79,7 @@ class ImapClient(object):
 
         self._count += 1
 
-        if __debug__:
+        if imaplib.Debug > 5:
             print('Lock acquired ', current_thread().name,
                   datetime.now().isoformat())
         return self
@@ -87,7 +91,7 @@ class ImapClient(object):
         self._count -= 1
         if not self._count:
             self.__lock.release()
-        if __debug__:
+        if imaplib.Debug > 5:
             print('Lock released ', current_thread().name,
                   datetime.now().isoformat())
         return False
@@ -125,7 +129,7 @@ class ImapClient(object):
         result = command.run(self.__imap_obj)
         self.last_untagged_responses = self.__imap_obj.untagged_responses
 
-        if self.last_untagged_responses:
+        if self.last_untagged_responses and imaplib.Debug > 5:
             warnings.warn('Data left {}'.format(self.last_untagged_responses),
                           RuntimeWarning)
         return result
@@ -302,6 +306,18 @@ class ImapClient(object):
         """
         self._simple_command(ImapUnSelectFolderCommand())
 
+    def release_current_folder(self):
+        """
+        
+        :return: 
+        """
+        try:
+            self.un_select_folder()
+        except ImapUnsupportedCommand as _:
+            # if imap server does not support UNSELECT imap command than we
+            # need to re establish connection.
+            self.imaplib('close')
+
     def update_folder_info(self, folder: ImapFolder) -> ImapFolder:
         """Updates additional information about folder for an ImapFolder object.
 
@@ -342,6 +358,8 @@ class ImapClient(object):
         :param name: str folder name
         :return: True if folder exists at IMAP server otherwise False
         """
+        if isinstance(name, ImapFolder):
+            name = name.name
         try:
             self.folder_by_name(name)
         except ImapObjectNotFound as _:
