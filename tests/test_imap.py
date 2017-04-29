@@ -134,8 +134,8 @@ class Imap(BaseTestCase):
 
     def test_fetch(self):
         with self.imap as client:
-            msgs = client.fetch(client.folder_by_name('INBOX'),
-                                   FetchQueryBuilder.all(1))
+            client.select_folder(client.folder_by_name('INBOX'))
+            msgs = client.fetch(FetchQueryBuilder.all(1))
             self.assertTrue(msgs)
 
     def test_namespaces(self):
@@ -161,12 +161,12 @@ class Imap(BaseTestCase):
     def test_search(self):
         folder = ImapFolder(b'Inbox', b'/', {})
         query = SearchQueryBuilder()
-        query.unseen()
+        query.seen()
         with self.imap as client:
             client.select_folder(folder)
             res = list(client.search(query))
             self.assertIsNotNone(res)
-            self.assertEqual(len(res), 1)
+            self.assertGreater(len(res), 1)
 
     def test_message_manipulation(self):
         msg = EmailMessage()

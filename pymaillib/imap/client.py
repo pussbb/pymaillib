@@ -14,7 +14,7 @@ from traceback import print_exception
 
 from typing import Iterable, Any
 
-from imap.utils import is_iterable
+from .utils import is_iterable
 from .query.builders.search import SearchQueryBuilder
 from .query.builders.store import StoreQueryBuilder
 from .query.builders.fetch import FetchQueryBuilder
@@ -46,6 +46,7 @@ class ImapClient(object):
     """Helper class to work with IMAP
 
     """
+    _initialized = False
 
     def __init__(self, settings: dict, auth_data: UserCredentials):
         """Create new instance of imap client class. Automatically connect to
@@ -55,18 +56,21 @@ class ImapClient(object):
         :param auth_data: UserCredentials
         :return:
         """
-        self.__opened = True
+        self._initialized = True
+        self.__opened = False
         self.__lock = Lock()
         self.capabilities = set()
         self.last_untagged_responses = {}
         self._count = 0
         self.__settings = settings
         self.__server_info = None
+        self.__imap_obj = None
         self.__auth_data = auth_data
         self._init_connection()
 
     def _init_connection(self):
         self.__imap_obj = self.__init_imap_obj()
+        self.__opened = True
         self._update_capabilities(
             ImapLoginCommand(self.__auth_data).run(self.__imap_obj)
         )
@@ -97,9 +101,11 @@ class ImapClient(object):
         return False
 
     def __getattr__(self, item) -> IMAP4:
-        def wrapper(*args, **kwargs):
-            return self.imaplib(item, *args, **kwargs)
-        return wrapper
+        if getattr(self.__imap_obj, item):
+            def wrapper(*args, **kwargs):
+                return self.imaplib(item, *args, **kwargs)
+            return wrapper
+        return super().__getattr__(item)
 
     def __repr__(self):
         return """Imap connection host: {host} port: {port} secure: {secure}.
@@ -156,10 +162,14 @@ class ImapClient(object):
             self.__imap_obj.shutdown()
 
     def __del__(self):
+        # ImapClient called with invalid arguments should raise TypeError
+        # but ImapClient.__del__ should not complain
+        if not getattr(self, '_initialized', False):
+            return
         try:
             self.close()
         except Exception as excp:
-            warnings.warn(excp, RuntimeWarning)
+            warnings.warn(str(excp), RuntimeWarning)
 
     @property
     def opened(self):

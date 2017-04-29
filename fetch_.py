@@ -5,6 +5,7 @@
 import imaplib
 import pprint
 
+from pymaillib.imap.client import ImapClient
 from pymaillib.imap.query.builders.search import SearchQueryBuilder
 from pymaillib.imap.entity.folder import ImapFolder
 from pymaillib.imap.query.builders.store import StoreQueryBuilder
@@ -13,6 +14,8 @@ from pymaillib.mailbox import UserMailbox
 from pymaillib.settings import Config
 
 imaplib.Debug = 0
+
+ImapClient()
 
 
 fetch_query = FetchQueryBuilder.fast('1')\
@@ -58,8 +61,8 @@ with mailbox.imap() as client:
     res = client.search(search_query)
     # [1]
     print(list(res))
-
-    msg = list(client.fetch(folder, fetch_query))[-1]
+    client.select_folder(folder)
+    msg = list(client.fetch(fetch_query))[-1]
     # {'BODY': {},
     # 'BODYSTRUCTURE': [{'disposition': None, 'boundary': ...
     # 'ENVELOPE': {'cc': [], 'message_id': b'<1991954822.314JavaMail....
