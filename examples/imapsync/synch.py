@@ -149,7 +149,7 @@ def fill_mailbox(source_mailbox, dest_mailbox, folder:ImapFolder):
         from_messages = get_folder_messages(folder, imap)
 
     to_messages = {}
-    with to_mailbox.imap() as imap:
+    with dest_mailbox.imap() as imap:
         imap.update_folder_info(folder)
         to_messages = get_folder_messages(folder, imap)
 
@@ -183,7 +183,7 @@ def fill_mailbox(source_mailbox, dest_mailbox, folder:ImapFolder):
                                       guess_email_class(rfc822))
                 print('Migrate message UID', msg.uid)
                 dest_imap.append_message(rfc822, folder, msg.flags)
-                dest_imap.check()
+                #dest_imap.check()
                 count += 1
     return count
 
