@@ -84,14 +84,14 @@ def linear_list(data):
 
 def decode_list_items(data):
     """Check items in list and decode bytes to str if needed
-    
-    :param data: 
-    :return: 
+
+    :param data:
+    :return:
     """
     res = []
     for item in iter(data):
         if isinstance(item, (bytearray, bytes)):
-            res.append(item.decode())
+            res.append(item.decode(errors='replace'))
             continue
         if is_iterable(item):
             res.append(decode_list_items(item))
